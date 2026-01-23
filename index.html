@@ -4,8 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <title>World Explorer</title>
   </head>
-  <body></body>
+  <body>
+    <header class="header">
+      <img src="images/earth.png" alt="Earth Logo" class="header__logo" />
+      <h1 class="header__title">World Explorer</h1>
+      <button type="button" class="header__theme-btn dark" aria-label="Switch theme button"></button>
+    </header>
+    <main>
+      <section class="filter">
+        <div class="filter__search">
+          <button class="search__btn"></button>
+          <input class="search__input" type="search" placeholder="Search Countries..." aria-label="Search country" />
+        </div>
+
+        <div class="filter__region">
+          <label for="region">Region:</label>
+          <select class="region__continents" name="region" id="region">
+            <option value="all">All</option>
+            <option value="africa">Africa</option>
+            <option value="asia">Asia</option>
+            <option value="australia">Australia</option>
+            <option value="europe">Europe</option>
+            <option value="north-america">North America</option>
+            <option value="south-america">South America</option>
+          </select>
+        </div>
+
+        <div class="filter__sort">
+          <label for="sort">Sort by:</label>
+          <select class="sort__select" name="sort" id="sort">
+            <option value="name-a-z">Name (A-Z)</option>
+            <option value="name-z-a">Name (Z-A)</option>
+            <option value="population-asc">Population (asc)</option>
+            <option value="population-desc">Population (desc)</option>
+          </select>
+        </div>
+      </section>
+      <section class="filter-info">
+        <p>Total countries:</p>
+      </section>
+      <section class="search-results"></section>
+    </main>
+    <footer class="footer"></footer>
+  </body>
   <script src="script/script.js"></script>
 </html>
