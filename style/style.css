@@ -1,16 +1,5 @@
 :root {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: system-ui, sans-serif;
 
   /* FONT VARIABLES */
   --title: 24px; /* header title */
@@ -20,7 +9,7 @@
 
   /* LIGHT VARIABLES*/
   --light-bg: rgb(240, 240, 240); /*light gray*/
-  --light-card: rgb(251, 251, 251); /*white*/
+  --light-card: rgb(254, 253, 254); /*white*/
   --light-border: rgb(209, 210, 213); /*light gray border*/
   --light-sub-text: rgb(107, 114, 128); /*gray*/
   --light-accent: rgb(37, 99, 235); /*blue*/
@@ -46,36 +35,36 @@
 .header {
   padding: 10px 15px;
   display: flex;
+  justify-content: space-between;
   border-bottom: 1px solid var(--light-border); /*light gray border*/
 }
 
-.header__logo {
+.header__brand {
+  display: flex;
+  gap: 5px;
+}
+
+.brand__logo {
   height: 30px;
   width: 30px;
 }
 
-.header__title {
-  margin-left: 5px;
+.brand__title {
   font-size: var(--title);
 }
 
 .header__theme-btn {
-  margin-left: auto;
   width: 60px;
   border: none;
   border-radius: 5px;
 }
 
 .dark::before {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  content: "\f186 ";
+  content: url(../images/icons/moon.png);
 }
 
 .light::before {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  content: "\f186 ";
+  content: url(../images/icons/sun.png);
 }
 
 /* MAIN */
@@ -107,15 +96,14 @@ main {
 }
 
 .search__btn::after {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 600;
-  content: "\f002";
+  content: url(../images/icons/dark-search.png);
 }
 
 .search__input {
   padding: 10px;
   border: none;
   width: 100%;
+  background: var(--light-card); /*white*/
 }
 
 /* FILTER REGION */
@@ -131,6 +119,7 @@ main {
   width: 200px;
   padding: 10px 0;
   font-weight: 600;
+  background: var(--light-card); /*white*/
 }
 
 /* FILTER SORT */
@@ -141,11 +130,12 @@ main {
   background: var(--light-card); /*white*/
 }
 
-.filter__sort select {
+.sort__select {
   border: none;
   width: 200px;
   padding: 10px 0;
   font-weight: 600;
+  background: var(--light-card); /*white*/
 }
 
 /* SEARCH/FILTER INFO SECTION */
@@ -178,12 +168,13 @@ main {
 
 .card__flag {
   height: 60px;
+  width: 100px;
   border: 1px solid var(--light-border); /*light gray border*/
   border-radius: 5px;
   margin-right: 10px;
 }
 
-.card__title {
+.card__name {
   margin-bottom: 15px;
   font-weight: 600;
   font-size: var(--card-title);
@@ -230,9 +221,7 @@ main {
 }
 
 .footer__prev-btn::before {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  content: "\f100";
+  content: url(../images/icons/prev.png);
   margin-right: 5px;
 }
 
@@ -241,8 +230,6 @@ main {
 }
 
 .footer__next-btn::after {
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  content: "\f101";
+  content: url(../images/icons/next.png);
   margin-left: 5px;
 }
