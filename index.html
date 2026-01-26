@@ -36,12 +36,20 @@
           </select>
         </div>
       </section>
+
       <section class="filter-info">
         <p>Total countries: <span id="filter-info__result"></span></p>
+        <p class="filter-info__status">Status:<span id="filter-status"></span></p>
       </section>
+
       <section class="search-results" id="search-results"></section>
     </main>
-    <footer class="footer"></footer>
+
+    <footer class="footer">
+      <button type="button" class="footer__btn prev" id="prev-btn">Prev</button>
+      <p id="pagination-info"></p>
+      <button class="footer__btn next" type="button" id="next-btn">Next</button>
+    </footer>
   </body>
   <script src="script/script.js"></script>
 </html>
