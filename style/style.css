@@ -53,18 +53,30 @@
   font-size: var(--title);
 }
 
+/* THEME BUTTON */
 .header__theme-btn {
   width: 60px;
   border: none;
   border-radius: 5px;
 }
 
+/* DARK THEME BUTTON */
 .dark::before {
   content: url(../images/icons/moon.png);
 }
 
+.dark:hover {
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+/* LIGHT THEME BUTTON */
 .light::before {
   content: url(../images/icons/sun.png);
+}
+
+.light:hover {
+  border: 1px solid var(--light-border);
 }
 
 /* MAIN */
@@ -74,8 +86,7 @@ main {
 
 /* FILTER */
 .filter {
-  margin: 0 15px;
-  padding: 20px 0;
+  padding: 20px 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -93,6 +104,7 @@ main {
 .search__btn {
   border: none;
   background: var(--light-card); /*white*/
+  cursor: pointer;
 }
 
 .search__btn::after {
@@ -147,6 +159,10 @@ main {
   font-weight: 500;
 }
 
+.filter-info__status {
+  display: none;
+}
+
 /* SEARCH RESULTS */
 .search-results {
   padding: 10px 15px;
@@ -160,6 +176,12 @@ main {
   display: flex;
   padding: 15px;
   margin-bottom: 10px;
+}
+
+.search-results__card:hover {
+  background-color: rgb(230, 230, 230);
+  border: 1px solid rgb(40, 40, 40); /* black*/
+  cursor: pointer;
 }
 
 .card__info {
@@ -216,20 +238,75 @@ main {
   display: none;
 }
 
-.footer__prev-btn {
+.footer__btn {
+  width: 70px;
   padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
 }
 
-.footer__prev-btn::before {
+.footer__btn:hover {
+  border: 1px solid rgb(40, 40, 40);
+  cursor: pointer;
+}
+
+.prev::before {
   content: url(../images/icons/prev.png);
-  margin-right: 5px;
 }
 
-.footer__next-btn {
-  padding: 5px;
+.next::after {
+  content: url(../images/icons/next-dark.png);
 }
 
-.footer__next-btn::after {
-  content: url(../images/icons/next.png);
-  margin-left: 5px;
+@media (min-width: 768px) {
+  .filter {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .filter__search {
+    width: 60%;
+  }
+  .filter-info {
+    display: flex;
+    justify-content: space-between;
+  }
+  .search-results {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .search-results__card {
+    width: 49%;
+  }
+  .filter-info__status {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: 10px 30px;
+  }
+  .filter {
+    padding: 10px 30px;
+  }
+  .filter-info {
+    padding: 10px 30px;
+  }
+  .search-results {
+    padding: 10px 30px;
+    max-width: 1600px;
+    justify-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .search-results__card {
+    width: 32%;
+  }
 }
