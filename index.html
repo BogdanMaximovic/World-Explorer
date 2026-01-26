@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/style.css" />
+    <title>World Explorer</title>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header__brand">
+        <img src="images/earth.png" alt="Earth Logo" class="brand__logo" />
+        <h1 class="brand__title">World Explorer</h1>
+      </div>
+      <button type="button" class="header__theme-btn dark" aria-label="Switch theme button" id="switch-theme"></button>
+    </header>
+    <main>
+      <section class="filter">
+        <div class="filter__search">
+          <button class="search__btn" id="search__btn"></button>
+          <input class="search__input" type="search" placeholder="Search Countries..." aria-label="Search country" id="search__input" />
+        </div>
+
+        <div class="filter__region">
+          <label for="region">Region:</label>
+          <select class="region__continents" name="region" id="region"></select>
+        </div>
+
+        <div class="filter__sort">
+          <label for="sort">Sort by:</label>
+          <select class="sort__select" name="sort" id="sort">
+            <option value="name-a-z">Name (A-Z)</option>
+            <option value="name-z-a">Name (Z-A)</option>
+            <option value="population-asc">Population (asc)</option>
+            <option value="population-desc">Population (desc)</option>
+          </select>
+        </div>
+      </section>
+      <section class="filter-info">
+        <p>Total countries: <span id="filter-info__result"></span></p>
+      </section>
+      <section class="search-results" id="search-results"></section>
+    </main>
+    <footer class="footer"></footer>
+  </body>
+  <script src="script/script.js"></script>
+</html>
