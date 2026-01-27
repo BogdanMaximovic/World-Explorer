@@ -13,11 +13,12 @@ function makeEl(elTag, elClass, elText) {
   return element;
 }
 
-const regions = [];
+const continents = [];
 async function getCountries() {
   try {
-    const response = await fetch("https://restcountries.com/v3.1/all?fields=name,region,capital,population,independent,flags");
+    const response = await fetch("https://restcountries.com/v3.1/all?fields=name,capital,population,independent,flags,continents");
     const data = await response.json();
+    console.log(data.splice(0, 10));
     data.forEach((country) => {
       if (country.independent) {
         const countryCard = makeEl("div", "search-results__card");
@@ -25,28 +26,25 @@ async function getCountries() {
         countryFlag.src = country.flags.png;
         const cardInfo = makeEl("div", "card__info");
         const countryName = makeEl("h2", "card__name", country.name.common);
-        const countryRegion = makeEl("p", "card__region", `Region: ${country.region}`);
+        const countryContinent = makeEl("p", "card__region", `Region: ${country.continents}`);
         const countryCapital = makeEl("p", "card__capital", `Capital: ${country.capital[0]}`);
         const formatPopulation = new Intl.NumberFormat("en-US", {
           notation: "compact",
         }).format(country.population);
         const countryPopulation = makeEl("p", "card__population", `Population: ${formatPopulation}`);
-        cardInfo.append(countryName, countryRegion, countryCapital, countryPopulation);
+        cardInfo.append(countryName, countryContinent, countryCapital, countryPopulation);
         countryCard.append(countryFlag, cardInfo);
         searchResults.append(countryCard);
-        if (regions.includes(country.region)) {
-          return;
-        } else {
-          regions.push(country.region);
+        if (!continents.includes(country.continents[0])) {
+          continents.push(country.continents[0]);
         }
-        console.log(regions);
-        regions.sort();
+        continents.sort();
       }
     });
     const allOption = makeEl("option", undefined, "All");
     allOption.value = "All";
     regionSelect.append(allOption);
-    regions.forEach((region) => {
+    continents.forEach((region) => {
       const regionOption = makeEl("option", undefined, region);
       regionOption.value = region;
       regionSelect.append(regionOption);
@@ -56,3 +54,8 @@ async function getCountries() {
   }
 }
 getCountries();
+
+// fetch("https://restcountries.com/v3.1/name/deutschland")
+//   .then((response) => response.json())
+//   .then((data) => console.log(data))
+//   .catch((error) => console.error("Error:", error));
