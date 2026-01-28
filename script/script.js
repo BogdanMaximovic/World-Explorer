@@ -6,25 +6,66 @@ const sortBy = document.getElementById("sort");
 const filterInfoResult = document.getElementById("filter-info__result");
 const searchResults = document.getElementById("search-results");
 
+// API URL
+const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,capital,population,independent,flags,continents";
+
+let countriesFromAPI = [];
+
+////////////////////////////
+// GET API DATA FUNCTION //
+//////////////////////////
+async function getAPIData() {
+  try {
+    const response = await fetch(onloadAPI);
+    const data = await response.json();
+    const independentCountries = data.filter((country) => country.independent);
+    countriesFromAPI = independentCountries;
+    return independentCountries;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/////////////////////////
+// LOAD ALL COUNTRIES //
+///////////////////////
+async function loadAllCountries() {
+  const independentCountries = await getAPIData();
+  makeCountry(independentCountries);
+
+  // MAKE SELECT/OPTION
+  const optionALl = makeEl("option", undefined, "All");
+  optionALl.value = "All";
+  optionALl.selected = true;
+  regionSelect.append(optionALl);
+  // CONTINENTS OPTIONS
+  const continents = [];
+  independentCountries.forEach((country) => {
+    if (!continents.includes(country.continents[0])) {
+      continents.push(country.continents[0]);
+    }
+  });
+  continents.sort();
+
+  continents.forEach((continent) => {
+    const selectContinent = makeEl("option", undefined, continent);
+    selectContinent.value = continent;
+    selectContinent.selected = true;
+    regionSelect.append(selectContinent);
+  });
+}
+loadAllCountries();
+
 function makeEl(elTag, elClass, elText, elId) {
   const element = document.createElement(elTag);
   if (elClass) element.className = elClass;
   if (elText) element.textContent = elText;
-  if (elId) element.id = elId;
   return element;
 }
 
+// FUNCTIONS MAKE COUNTRY
 function makeCountry(data) {
-  const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
   data.forEach((country) => {
-    if (country.independent) {
-      if (selected.includes(country.continents[0])) {
-        continentCountries.push(country);
-      }
-    }
-  });
-
-  continentCountries.forEach((country) => {
     const countryCard = makeEl("div", "search-results__card");
     const countryFlag = makeEl("img", "card__flag");
     countryFlag.src = country.flags.png;
@@ -42,40 +83,44 @@ function makeCountry(data) {
   });
 }
 
-let allCountries = [];
-const continents = [];
-const continentCountries = [];
+regionSelect.onchange = filterByRegion;
+function filterByRegion(e) {
+  const options = [...regionSelect.options];
+  const optionAll = options.find((option) => option.value === "All");
+  const continentOptions = options.filter((option) => option.value !== "All");
 
-async function getCountries() {
-  try {
-    const response = await fetch("https://restcountries.com/v3.1/all?fields=name,capital,population,independent,flags,continents");
-    const data = await response.json();
-    allCountries = data;
+  optionAll.onclick = () => {
+    if (optionAll.selected === true) {
+      optionAll.selected = false;
+      searchResults.textContent = "";
+      continentOptions.forEach((el) => {
+        el.selected = false;
+      });
+    } else if (optionAll.selected === false) {
+      optionAll.selected = true;
+      continentOptions.forEach((el) => {
+        el.selected = true;
+      });
+      regionSelect.textContent = "";
+      searchResults.textContent = "";
+      loadAllCountries();
+    }
+  };
 
-    data.forEach((country) => {
-      if (country.independent) {
-        if (!continents.includes(country.continents[0])) {
-          continents.push(country.continents[0]);
-        }
-      }
-      continents.sort();
-    });
-    continents.forEach((region) => {
-      const regionOption = makeEl("option", undefined, region, region.replaceAll(" ", "-").toLowerCase());
-      regionOption.value = region;
-      regionOption.selected = true;
-      regionSelect.append(regionOption);
-    });
-    makeCountry(data);
-  } catch (err) {
-    console.error(err);
+  if (continentOptions.some((el) => !el.selected)) {
+    optionAll.selected = false;
+  } else {
+    optionAll.selected = true;
   }
-}
-getCountries();
 
-regionSelect.onchange = selectedOptions;
-function selectedOptions(e) {
+  // COUNTRY BY CONTINENT FILTER
+  const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
   searchResults.textContent = "";
-  continentCountries.length = 0;
-  makeCountry(allCountries);
+  const filteredCountries = [];
+  countriesFromAPI.forEach((country) => {
+    if (selected.includes(country.continents[0])) {
+      filteredCountries.push(country);
+    }
+  });
+  makeCountry(filteredCountries);
 }
