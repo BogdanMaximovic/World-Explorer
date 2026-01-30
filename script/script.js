@@ -5,12 +5,18 @@ const regionSelect = document.getElementById("region");
 const sortBy = document.getElementById("sort");
 const filterInfoResult = document.getElementById("filter-info__result");
 const searchResults = document.getElementById("search-results");
+const prevBtn = document.getElementById("prev-btn");
+const paginationInfo = document.getElementById("pagination-info");
+const nextBtn = document.getElementById("next-btn");
+const pageSizeSelect = document.getElementById("page-size");
 
 // API URL
 const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,capital,population,independent,flags,continents";
 
 let countriesFromAPI = [];
 let countriesToSort = [];
+let pageSize = 12;
+let pageCount = 1;
 
 ////////////////////////////
 // GET API DATA FUNCTION //
@@ -19,12 +25,13 @@ async function getAPIData() {
   try {
     const response = await fetch(onloadAPI);
     const data = await response.json();
-    const independentCountries = data.filter((country) => country.independent);
-    countriesFromAPI = independentCountries;
-    return independentCountries;
+    countriesFromAPI = data.filter((country) => country.independent);
+    countriesToSort = countriesFromAPI;
+    makeOptions(countriesFromAPI);
+
+    return countriesFromAPI;
   } catch (err) {
     const toastMsg = makeEl("div", "toast-msg", `Failed to load data. Error type: ${err.name} `);
-
     setTimeout(() => {
       toastMsg.classList.add("toast-msg-active");
     }, 500);
@@ -36,29 +43,21 @@ async function getAPIData() {
   }
 }
 
-/////////////////////////
-// LOAD ALL COUNTRIES //
-///////////////////////
-async function loadAllCountries() {
-  const independentCountries = await getAPIData();
-  makeCountry(independentCountries);
-  filterInfoResult.textContent = independentCountries.length;
-  countriesToSort = independentCountries;
-  // MAKE SELECT/OPTION
-  const optionALl = makeEl("option", undefined, "All");
-  optionALl.value = "All";
-  optionALl.selected = true;
-  regionSelect.append(optionALl);
+// MAKE OPTIONS FOR SELECT REGION //
+function makeOptions(data) {
+  const optionAll = makeEl("option", undefined, "All");
+  optionAll.value = "All";
+  optionAll.selected = true;
+  regionSelect.append(optionAll);
 
   // CONTINENTS OPTIONS
   const continents = [];
-  independentCountries.forEach((country) => {
+  data.forEach((country) => {
     if (!continents.includes(country.continents[0])) {
       continents.push(country.continents[0]);
     }
   });
   continents.sort();
-
   continents.forEach((continent) => {
     const selectContinent = makeEl("option", undefined, continent);
     selectContinent.value = continent;
@@ -66,9 +65,23 @@ async function loadAllCountries() {
     regionSelect.append(selectContinent);
   });
 }
+
+/////////////////////////
+// LOAD ALL COUNTRIES //
+///////////////////////
+async function loadAllCountries() {
+  const independentCountries = await getAPIData();
+  prevBtn.disabled = true;
+  makeCountry(independentCountries.slice(0, pageSize));
+  getPaginationInfo();
+  filterInfoResult.textContent = independentCountries.length;
+}
 loadAllCountries();
 
-function makeEl(elTag, elClass, elText, elId) {
+////////////////////////////
+// MAKE ELEMENT FUNCTION //
+//////////////////////////
+function makeEl(elTag, elClass, elText) {
   const element = document.createElement(elTag);
   if (elClass) element.className = elClass;
   if (elText) element.textContent = elText;
@@ -79,10 +92,12 @@ function makeEl(elTag, elClass, elText, elId) {
 // FUNCTIONS MAKE COUNTRY //
 ///////////////////////////
 function makeCountry(data) {
+  searchResults.textContent = "";
   data.forEach((country) => {
     const countryCard = makeEl("div", "search-results__card");
     const countryFlag = makeEl("img", "card__flag");
     countryFlag.src = country.flags.png;
+    countryFlag.alt = country.flags.alt;
     const cardInfo = makeEl("div", "card__info");
     const countryName = makeEl("h2", "card__name", country.name.common);
     const countryContinent = makeEl("p", "card__region", `Region: ${country.continents}`);
@@ -101,11 +116,12 @@ function makeCountry(data) {
 // FILTER BY CONTINENT //
 ////////////////////////
 regionSelect.onchange = filterByRegion;
-function filterByRegion(e) {
+function filterByRegion() {
   const options = [...regionSelect.options];
   const optionAll = options.find((option) => option.value === "All");
   const continentOptions = options.filter((option) => option.value !== "All");
 
+  // ONCLICK OPTION ALL /////
   optionAll.onclick = () => {
     countriesToSort = [];
     searchResults.textContent = "";
@@ -117,7 +133,7 @@ function filterByRegion(e) {
       });
     } else if (optionAll.selected === false) {
       optionAll.selected = true;
-
+      countriesToSort = countriesFromAPI;
       continentOptions.forEach((el) => {
         el.selected = true;
       });
@@ -125,7 +141,6 @@ function filterByRegion(e) {
         regionSelect.textContent = "";
         loadAllCountries();
       } else {
-        countriesToSort = countriesFromAPI;
         sortCountries();
       }
     }
@@ -139,22 +154,19 @@ function filterByRegion(e) {
 
   // COUNTRY BY CONTINENT FILTER
   const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
-  searchResults.textContent = "";
   const filteredCountries = [];
   countriesFromAPI.forEach((country) => {
     if (selected.includes(country.continents[0])) {
       filteredCountries.push(country);
     }
   });
-  countriesToSort = [];
   countriesToSort = filteredCountries;
+
   filterInfoResult.textContent = filteredCountries.length;
 
-  if (sortBy.value === "") {
-    makeCountry(filteredCountries);
-  } else {
-    sortCountries(filteredCountries);
-  }
+  sortBy.value === "" ? makeCountry(filteredCountries.slice(0, pageSize)) : sortCountries();
+  pageCount = 1;
+  getPaginationInfo();
 }
 
 //////////////////////////////
@@ -162,14 +174,63 @@ function filterByRegion(e) {
 ////////////////////////////
 sortBy.onchange = sortCountries;
 function sortCountries() {
-  searchResults.textContent = "";
+  pageCount = 1;
+  getPaginationInfo();
+  prevBtn.disabled = true;
+  let arrToSort = [];
   if (sortBy.value === "name-asc") {
-    makeCountry(countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common)));
+    arrToSort = countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
   } else if (sortBy.value === "name-desc") {
-    makeCountry(countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common)));
+    arrToSort = countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common));
   } else if (sortBy.value === "population-asc") {
-    makeCountry(countriesToSort.sort((a, b) => a.population - b.population));
+    arrToSort = countriesToSort.sort((a, b) => a.population - b.population);
   } else if (sortBy.value === "population-desc") {
-    makeCountry(countriesToSort.sort((a, b) => b.population - a.population));
+    arrToSort = countriesToSort.sort((a, b) => b.population - a.population);
   }
+  makeCountry(arrToSort.slice(0, pageSize));
+}
+
+/////////////////
+// PAGINATION //
+///////////////
+nextBtn.onclick = () => pagination("+");
+prevBtn.onclick = () => pagination("-");
+function pagination(type) {
+  if (type === "+") {
+    pageCount++;
+    prevBtn.disabled = false;
+  } else if (type === "-") {
+    pageCount--;
+  }
+  const start = (pageCount - 1) * pageSize;
+  makeCountry(countriesToSort.slice(start, start + pageSize));
+  getPaginationInfo();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+///////////////////////////////
+// PAGINATION INFO FUNCTION //
+/////////////////////////////
+function getPaginationInfo() {
+  if (pageCount === 1) {
+    prevBtn.disabled = true;
+  }
+  nextBtn.disabled = false;
+  paginationInfo.textContent = "";
+  paginationInfo.textContent = `Page ${pageCount} of ${Math.ceil(countriesToSort.length / pageSize)}`;
+  if (pageCount === Math.ceil(countriesToSort.length / pageSize)) {
+    nextBtn.disabled = true;
+  }
+}
+
+////////////////////////////////
+// PAGE SIZE SELECT FUNCTION //
+//////////////////////////////
+pageSizeSelect.onchange = setPageSize;
+function setPageSize(e) {
+  pageSize = Number(e.target.value);
+  pageCount = 1;
+  searchResults.textContent = "";
+  makeCountry(countriesToSort.slice(0, pageSize));
+  getPaginationInfo();
 }
