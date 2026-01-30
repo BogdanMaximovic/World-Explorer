@@ -249,6 +249,16 @@ main {
   background: transparent;
 }
 
+.footer__page-size {
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+}
+.page-size {
+  border: none;
+}
+
 .footer__btn:hover {
   border: 1px solid rgb(40, 40, 40);
   cursor: pointer;
@@ -260,6 +270,23 @@ main {
 
 .next::after {
   content: url(../images/icons/next-dark.png);
+}
+
+/* ERROR/TOAST MESSAGE */
+.toast-msg {
+  position: fixed;
+  right: 20px;
+  bottom: -100px;
+  padding: 15px 20px;
+  background-color: rgb(210, 45, 45);
+  color: var(--light-card);
+  font-size: 18px;
+  border-radius: 15px;
+  transition: bottom 0.4s ease;
+}
+
+.toast-msg-active {
+  bottom: 20px;
 }
 
 @media (min-width: 768px) {

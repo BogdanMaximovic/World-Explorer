@@ -29,8 +29,9 @@
         <div class="filter__sort">
           <label for="sort">Sort by:</label>
           <select class="sort__select" name="sort" id="sort">
-            <option value="name-a-z">Name (A-Z)</option>
-            <option value="name-z-a">Name (Z-A)</option>
+            <option value="" disabled selected>Choose option</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
             <option value="population-asc">Population (asc)</option>
             <option value="population-desc">Population (desc)</option>
           </select>
@@ -47,7 +48,19 @@
 
     <footer class="footer">
       <button type="button" class="footer__btn prev" id="prev-btn">Prev</button>
+
       <p id="pagination-info"></p>
+      <div class="footer__page-size">
+        <label for="page-size">Items per page</label>
+        <select name="page-size" id="page-size" class="page-size">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="12" selected>12</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
       <button class="footer__btn next" type="button" id="next-btn">Next</button>
     </footer>
   </body>
