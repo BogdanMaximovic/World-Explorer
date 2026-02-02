@@ -178,6 +178,10 @@ main {
   margin-bottom: 10px;
 }
 
+.country-body {
+  display: flex;
+}
+
 .search-results__card:hover {
   background-color: rgb(230, 230, 230);
   border: 1px solid rgb(40, 40, 40); /* black*/
@@ -193,7 +197,7 @@ main {
   width: 100px;
   border: 1px solid var(--light-border); /*light gray border*/
   border-radius: 5px;
-  margin-right: 10px;
+  margin: 0 10px 10px 0;
 }
 
 .card__name {
@@ -202,26 +206,89 @@ main {
   font-size: var(--card-title);
 }
 
-.card__region {
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--light-border); /*light gray border*/
-  font-size: var(--body-text);
-}
-
-.card__capital {
+.card__info-data {
   padding: 5px 0;
   border-bottom: 1px solid var(--light-border);
   /*light gray border*/
   font-size: var(--body-text);
+  list-style: none;
 }
 
-.card__population {
-  padding-top: 5px;
-  font-size: var(--body-text);
+.card__info-data:last-child {
+  border: none;
 }
 
 .card__result {
   font-weight: 500;
+}
+
+/* ////////////// */
+/* COUNTRY MODAL */
+/* //////////// */
+.country-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--light-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--light-card);
+  padding: 15px;
+  margin-bottom: 10px;
+  min-width: 290px;
+}
+
+.close-modal {
+  margin-bottom: 10px;
+}
+
+.close-modal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 24px;
+}
+
+.close-modal-btn {
+  background-image: url(../images/wold-explorer-icons/svg/glyph0.svg);
+  background-color: rgb(255, 255, 255);
+  width: 32px;
+  height: 32px;
+  border: none;
+  cursor: pointer;
+}
+
+.close-modal-btn:hover {
+  border-radius: 5px;
+  background-color: rgb(231, 196, 196);
+}
+
+.cancel-modal {
+  justify-self: end;
+  margin: 10px 0 5px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background-color: var(--light-bg);
+  display: block;
+  border: 1px solid rgb(50, 50, 50);
+}
+
+.cancel-modal:hover {
+  background-color: rgb(231, 196, 196);
+}
+
+.modal-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(20, 20, 20, 0.6);
 }
 
 /* FOOTER */
@@ -312,6 +379,16 @@ main {
   }
   .filter-info__status {
     display: block;
+  }
+
+  .close-modal {
+    font-size: 24px;
+  }
+
+  .country-modal-body {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
   }
 }
 

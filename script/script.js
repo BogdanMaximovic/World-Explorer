@@ -11,7 +11,7 @@ const nextBtn = document.getElementById("next-btn");
 const pageSizeSelect = document.getElementById("page-size");
 
 // API URL
-const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,capital,population,independent,flags,continents";
+const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,population,independent,flags,currencies,subregion,languages,borders,continents,capital";
 
 let countriesFromAPI = [];
 let countriesToSort = [];
@@ -27,11 +27,12 @@ async function getAPIData() {
     const data = await response.json();
     countriesFromAPI = data.filter((country) => country.independent);
     countriesToSort = countriesFromAPI;
+    console.log(countriesFromAPI[70]);
     makeOptions(countriesFromAPI);
 
     return countriesFromAPI;
   } catch (err) {
-    const toastMsg = makeEl("div", "toast-msg", `Failed to load data. Error type: ${err.name} `);
+    const toastMsg = makeEl("div", "toast-msg", `Unable to load countries. Please try again later.`);
     setTimeout(() => {
       toastMsg.classList.add("toast-msg-active");
     }, 500);
@@ -81,10 +82,11 @@ loadAllCountries();
 ////////////////////////////
 // MAKE ELEMENT FUNCTION //
 //////////////////////////
-function makeEl(elTag, elClass, elText) {
+function makeEl(elTag, elClass, elText, elId) {
   const element = document.createElement(elTag);
   if (elClass) element.className = elClass;
   if (elText) element.textContent = elText;
+  if (elId) element.id = elId;
   return element;
 }
 
@@ -94,18 +96,33 @@ function makeEl(elTag, elClass, elText) {
 function makeCountry(data) {
   searchResults.textContent = "";
   data.forEach((country) => {
-    const countryCard = makeEl("div", "search-results__card");
+    const countryCard = makeEl("div", "search-results__card", undefined, "country-card");
     const countryFlag = makeEl("img", "card__flag");
     countryFlag.src = country.flags.png;
     countryFlag.alt = country.flags.alt;
-    const cardInfo = makeEl("div", "card__info");
+    const cardInfo = makeEl("ul", "card__info");
     const countryName = makeEl("h2", "card__name", country.name.common);
-    const countryContinent = makeEl("p", "card__region", `Region: ${country.continents}`);
-    const countryCapital = makeEl("p", "card__capital", `Capital: ${country.capital[0]}`);
+    const countryContinent = makeEl("li", "card__info-data", `Region: ${country.continents}`);
+    const countryCapital = makeEl("li", "card__info-data", `Capital: ${country.capital[0]}`);
     const formatPopulation = new Intl.NumberFormat("en-US", {
       notation: "compact",
     }).format(country.population);
-    const countryPopulation = makeEl("p", "card__population", `Population: ${formatPopulation}`);
+    const countryPopulation = makeEl("li", "card__info-data", `Population: ${formatPopulation}`);
+    // CALL MODAL FUNCTION
+    const countryModalInfo = {
+      countryCard,
+      countryName,
+      countryFlag,
+      cardInfo,
+      commonName: country.name.common,
+      officialName: country.name.official,
+      subregion: country.subregion,
+      language: country.languages,
+      currency: country.currencies,
+      borders: country.borders,
+    };
+    countryCard.onclick = () => openModal(countryModalInfo);
+    // CALL MODAL FUNCTION
     cardInfo.append(countryName, countryContinent, countryCapital, countryPopulation);
     countryCard.append(countryFlag, cardInfo);
     searchResults.append(countryCard);
@@ -233,4 +250,71 @@ function setPageSize(e) {
   searchResults.textContent = "";
   makeCountry(countriesToSort.slice(0, pageSize));
   getPaginationInfo();
+}
+
+//////////////////////
+// MODAL FUNCTIONS //
+////////////////////
+
+function openModal(countryModalInfo) {
+  const modalOverlay = makeEl("div", "modal-overlay", undefined, "modal-overlay");
+  const countryModal = countryModalInfo.countryCard.cloneNode(true);
+  countryModal.className = "country-modal";
+  // MODAL HEAD
+  const modalHeader = makeEl("div", "close-modal");
+  const modalHeaderTitle = makeEl("h2", "modal-title", countryModalInfo.countryName.textContent);
+  const closeModalBtn = makeEl("button", "close-modal-btn");
+  closeModalBtn.onclick = closeModalOverlay;
+  modalHeader.append(modalHeaderTitle, closeModalBtn);
+  countryModal.insertBefore(modalHeader, countryModal.firstChild);
+  // MODAL HEAD
+  countryModal.querySelector("ul.card__info").firstElementChild.remove();
+  // SHORT MAKE LI FUNCTION
+  const makeCardInfo = (text) => makeEl("li", "card__info-data", text);
+  // SHORT MAKE LI FUNCTION
+  const officialName = makeCardInfo(`Official name: ${countryModalInfo.officialName}`);
+  countryModal.lastElementChild.insertBefore(officialName, countryModal.lastElementChild.firstChild);
+
+  const countryModalSubregion = makeCardInfo(`Subregion: ${countryModalInfo.subregion}`);
+
+  const countryModalLanguages = makeCardInfo(`Languages: ${Object.values(countryModalInfo.language)}`);
+
+  const countryModalCurrency = makeCardInfo(
+    `Currency: ${Object.values(countryModalInfo.currency)
+      .map((c) => c.name)
+      .join(", ")}`,
+  );
+  const countryModalBorders = makeCardInfo(`Borders: ${CheckIfBordersExist(countryModalInfo.borders.map((el) => " " + el))}`);
+
+  const cancelModalBtn = makeEl("button", "cancel-modal", "Cancel");
+  cancelModalBtn.onclick = closeModalOverlay;
+
+  countryModal.querySelector("ul.card__info").append(countryModalSubregion, countryModalLanguages, countryModalCurrency, countryModalBorders, cancelModalBtn);
+
+  document.body.classList.add("body-modal");
+
+  const countryBody = makeEl("div", "country-modal-body");
+  const modalFlag = countryModal.querySelector("img.card__flag");
+  const modalList = countryModal.querySelector("ul.card__info");
+
+  countryBody.append(modalFlag, modalList);
+  countryModal.append(countryBody);
+  modalOverlay.append(countryModal);
+  document.body.append(modalOverlay);
+}
+
+///////////////////////////
+// CLOSE MODAL FUNCTION //
+/////////////////////////
+function closeModalOverlay() {
+  const modal = document.getElementById("modal-overlay");
+  modal.remove();
+}
+
+function CheckIfBordersExist(borders) {
+  if (!borders.length) {
+    return "None";
+  } else {
+    return borders;
+  }
 }
