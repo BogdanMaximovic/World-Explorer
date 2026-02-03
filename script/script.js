@@ -27,7 +27,7 @@ async function getAPIData() {
     const data = await response.json();
     countriesFromAPI = data.filter((country) => country.independent);
     countriesToSort = countriesFromAPI;
-    console.log(countriesFromAPI[70]);
+    // console.log(countriesFromAPI[70]);
     makeOptions(countriesFromAPI);
 
     return countriesFromAPI;
@@ -108,7 +108,7 @@ function makeCountry(data) {
       notation: "compact",
     }).format(country.population);
     const countryPopulation = makeEl("li", "card__info-data", `Population: ${formatPopulation}`);
-    // CALL MODAL FUNCTION
+    //  START CALL MODAL
     const countryModalInfo = {
       countryCard,
       countryName,
@@ -122,7 +122,7 @@ function makeCountry(data) {
       borders: country.borders,
     };
     countryCard.onclick = () => openModal(countryModalInfo);
-    // CALL MODAL FUNCTION
+    // END CALL MODAL
     cardInfo.append(countryName, countryContinent, countryCapital, countryPopulation);
     countryCard.append(countryFlag, cardInfo);
     searchResults.append(countryCard);
@@ -195,14 +195,19 @@ function sortCountries() {
   getPaginationInfo();
   prevBtn.disabled = true;
   let arrToSort = [];
-  if (sortBy.value === "name-asc") {
-    arrToSort = countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
-  } else if (sortBy.value === "name-desc") {
-    arrToSort = countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common));
-  } else if (sortBy.value === "population-asc") {
-    arrToSort = countriesToSort.sort((a, b) => a.population - b.population);
-  } else if (sortBy.value === "population-desc") {
-    arrToSort = countriesToSort.sort((a, b) => b.population - a.population);
+  switch (sortBy.value) {
+    case "name-asc":
+      arrToSort = countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
+      break;
+    case "name-desc":
+      arrToSort = countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common));
+      break;
+    case "population-asc":
+      arrToSort = countriesToSort.sort((a, b) => a.population - b.population);
+      break;
+    case "population-desc":
+      arrToSort = countriesToSort.sort((a, b) => b.population - a.population);
+      break;
   }
   makeCountry(arrToSort.slice(0, pageSize));
 }
@@ -259,6 +264,9 @@ function setPageSize(e) {
 function openModal(countryModalInfo) {
   const modalOverlay = makeEl("div", "modal-overlay", undefined, "modal-overlay");
   const countryModal = countryModalInfo.countryCard.cloneNode(true);
+  const countryBody = makeEl("div", "country-modal-body");
+  const modalFlag = countryModal.querySelector("img.card__flag");
+  const cardInfoList = countryModal.querySelector("ul.card__info");
   countryModal.className = "country-modal";
   // MODAL HEAD
   const modalHeader = makeEl("div", "close-modal");
@@ -268,36 +276,32 @@ function openModal(countryModalInfo) {
   modalHeader.append(modalHeaderTitle, closeModalBtn);
   countryModal.insertBefore(modalHeader, countryModal.firstChild);
   // MODAL HEAD
-  countryModal.querySelector("ul.card__info").firstElementChild.remove();
+  cardInfoList.firstElementChild.remove();
   // SHORT MAKE LI FUNCTION
   const makeCardInfo = (text) => makeEl("li", "card__info-data", text);
   // SHORT MAKE LI FUNCTION
   const officialName = makeCardInfo(`Official name: ${countryModalInfo.officialName}`);
-  countryModal.lastElementChild.insertBefore(officialName, countryModal.lastElementChild.firstChild);
+  cardInfoList.prepend(officialName);
 
   const countryModalSubregion = makeCardInfo(`Subregion: ${countryModalInfo.subregion}`);
 
-  const countryModalLanguages = makeCardInfo(`Languages: ${Object.values(countryModalInfo.language)}`);
+  const countryModalLanguages = makeCardInfo(`Languages: ${Object.values(countryModalInfo.language).join(", ")}`);
 
   const countryModalCurrency = makeCardInfo(
     `Currency: ${Object.values(countryModalInfo.currency)
       .map((c) => c.name)
       .join(", ")}`,
   );
-  const countryModalBorders = makeCardInfo(`Borders: ${CheckIfBordersExist(countryModalInfo.borders.map((el) => " " + el))}`);
+  const countryModalBorders = makeCardInfo(`Borders: ${CheckIfBordersExist(countryModalInfo.borders.join(", "))}`);
 
   const cancelModalBtn = makeEl("button", "cancel-modal", "Cancel");
   cancelModalBtn.onclick = closeModalOverlay;
 
-  countryModal.querySelector("ul.card__info").append(countryModalSubregion, countryModalLanguages, countryModalCurrency, countryModalBorders, cancelModalBtn);
+  cardInfoList.append(countryModalSubregion, countryModalLanguages, countryModalCurrency, countryModalBorders, cancelModalBtn);
 
   document.body.classList.add("body-modal");
 
-  const countryBody = makeEl("div", "country-modal-body");
-  const modalFlag = countryModal.querySelector("img.card__flag");
-  const modalList = countryModal.querySelector("ul.card__info");
-
-  countryBody.append(modalFlag, modalList);
+  countryBody.append(modalFlag, cardInfoList);
   countryModal.append(countryBody);
   modalOverlay.append(countryModal);
   document.body.append(modalOverlay);
