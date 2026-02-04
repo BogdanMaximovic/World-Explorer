@@ -356,6 +356,14 @@ main {
   bottom: 20px;
 }
 
+.status-loaded {
+  color: rgb(40, 167, 69);
+}
+
+.status-error {
+  color: rgb(220, 53, 69);
+}
+
 @media (min-width: 768px) {
   .filter {
     flex-direction: row;
@@ -405,6 +413,7 @@ main {
   .search-results {
     padding: 10px 30px;
     max-width: 1600px;
+    width: 100%;
     justify-self: center;
     display: flex;
     flex-wrap: wrap;

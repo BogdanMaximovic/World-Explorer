@@ -4,6 +4,7 @@ const searchCountryInput = document.getElementById("search__input");
 const regionSelect = document.getElementById("region");
 const sortBy = document.getElementById("sort");
 const filterInfoResult = document.getElementById("filter-info__result");
+const responseStatus = document.getElementById("filter-status");
 const searchResults = document.getElementById("search-results");
 const prevBtn = document.getElementById("prev-btn");
 const paginationInfo = document.getElementById("pagination-info");
@@ -17,6 +18,7 @@ let countriesFromAPI = [];
 let countriesToSort = [];
 let pageSize = 12;
 let pageCount = 1;
+responseStatus.textContent = " Loading...";
 
 ////////////////////////////
 // GET API DATA FUNCTION //
@@ -26,17 +28,19 @@ async function getAPIData() {
     const response = await fetch(onloadAPI);
     const data = await response.json();
     countriesFromAPI = data.filter((country) => country.independent);
-    countriesToSort = countriesFromAPI;
-    // console.log(countriesFromAPI[70]);
+    countriesToSort = [...countriesFromAPI];
     makeOptions(countriesFromAPI);
-
+    console.log(countriesFromAPI[0]);
+    responseStatus.textContent = " Loaded";
+    responseStatus.className = "status-loaded";
     return countriesFromAPI;
   } catch (err) {
+    responseStatus.textContent = " Error";
+    responseStatus.className = "status-error";
     const toastMsg = makeEl("div", "toast-msg", `Unable to load countries. Please try again later.`);
     setTimeout(() => {
       toastMsg.classList.add("toast-msg-active");
     }, 500);
-
     setTimeout(() => {
       toastMsg.classList.remove("toast-msg-active");
     }, 5000);
@@ -44,7 +48,9 @@ async function getAPIData() {
   }
 }
 
+/////////////////////////////////////
 // MAKE OPTIONS FOR SELECT REGION //
+///////////////////////////////////
 function makeOptions(data) {
   const optionAll = makeEl("option", undefined, "All");
   optionAll.value = "All";
@@ -90,6 +96,13 @@ function makeEl(elTag, elClass, elText, elId) {
   return element;
 }
 
+/////////////////////
+// MAKE CARD INFO //
+///////////////////
+function makeInfoCard(text) {
+  return makeEl("li", "card__info-data", text);
+}
+
 /////////////////////////////
 // FUNCTIONS MAKE COUNTRY //
 ///////////////////////////
@@ -102,12 +115,12 @@ function makeCountry(data) {
     countryFlag.alt = country.flags.alt;
     const cardInfo = makeEl("ul", "card__info");
     const countryName = makeEl("h2", "card__name", country.name.common);
-    const countryContinent = makeEl("li", "card__info-data", `Region: ${country.continents}`);
-    const countryCapital = makeEl("li", "card__info-data", `Capital: ${country.capital[0]}`);
+    const countryContinent = makeInfoCard(`Region: ${country.continents}`);
+    const countryCapital = makeInfoCard(`Capital: ${country.capital[0]}`);
     const formatPopulation = new Intl.NumberFormat("en-US", {
       notation: "compact",
     }).format(country.population);
-    const countryPopulation = makeEl("li", "card__info-data", `Population: ${formatPopulation}`);
+    const countryPopulation = makeInfoCard(`Population: ${formatPopulation}`);
     //  START CALL MODAL
     const countryModalInfo = {
       countryCard,
@@ -129,6 +142,18 @@ function makeCountry(data) {
   });
 }
 
+// CHECK IF ALL CONTINENTS ARE SELECTED //
+function checksAllContinent() {
+  const optionAll = [...regionSelect.options].find((option) => option.value === "All");
+  const continentOptions = [...regionSelect.options].filter((option) => option.value !== "All");
+
+  if (continentOptions.some((el) => !el.selected)) {
+    optionAll.selected = false;
+  } else {
+    optionAll.selected = true;
+  }
+}
+
 //////////////////////////
 // FILTER BY CONTINENT //
 ////////////////////////
@@ -144,40 +169,53 @@ function filterByRegion() {
     searchResults.textContent = "";
     if (optionAll.selected === true) {
       filterInfoResult.textContent = 0;
-      optionAll.selected = false;
-      continentOptions.forEach((el) => {
+      options.forEach((el) => {
         el.selected = false;
       });
     } else if (optionAll.selected === false) {
-      optionAll.selected = true;
-      countriesToSort = countriesFromAPI;
-      continentOptions.forEach((el) => {
+      if (!searchCountryInput.value.length) {
+        countriesToSort = [...countriesFromAPI];
+      } else {
+        countriesFromAPI.forEach((el) => {
+          if (el.name.common.includes(searchCountryInput.value)) {
+            countriesToSort.push(el);
+          }
+        });
+        console.log(countriesToSort);
+        // countriesToSort = [...countriesFromAPI.forEach()].includes
+      }
+      options.forEach((el) => {
         el.selected = true;
       });
-      if (!sortBy.value) {
-        regionSelect.textContent = "";
-        loadAllCountries();
-      } else {
-        sortCountries();
-      }
+      sortBy === "" ? makeCountry(countriesToSort.slice(0, pageSize)) : sortCountries();
+      filterInfoResult.textContent = countriesToSort.length;
     }
+    getPaginationInfo();
   };
 
-  if (continentOptions.some((el) => !el.selected)) {
-    optionAll.selected = false;
-  } else {
-    optionAll.selected = true;
-  }
+  checksAllContinent();
 
   // COUNTRY BY CONTINENT FILTER
   const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
-  const filteredCountries = [];
+  let filteredCountries = [];
+
   countriesFromAPI.forEach((country) => {
     if (selected.includes(country.continents[0])) {
       filteredCountries.push(country);
     }
   });
-  countriesToSort = filteredCountries;
+
+  if (searchCountryInput.value) {
+    countriesToSort = [];
+    filteredCountries.forEach((el) => {
+      if (el.name.common.toLowerCase().includes(searchCountryInput.value.toLowerCase())) {
+        countriesToSort.push(el);
+      }
+    });
+    filteredCountries = [...countriesToSort];
+  }
+
+  countriesToSort = [...filteredCountries];
 
   filterInfoResult.textContent = filteredCountries.length;
 
@@ -194,22 +232,21 @@ function sortCountries() {
   pageCount = 1;
   getPaginationInfo();
   prevBtn.disabled = true;
-  let arrToSort = [];
   switch (sortBy.value) {
     case "name-asc":
-      arrToSort = countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
+      countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
       break;
     case "name-desc":
-      arrToSort = countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common));
+      countriesToSort.sort((a, b) => b.name.common.localeCompare(a.name.common));
       break;
     case "population-asc":
-      arrToSort = countriesToSort.sort((a, b) => a.population - b.population);
+      countriesToSort.sort((a, b) => a.population - b.population);
       break;
     case "population-desc":
-      arrToSort = countriesToSort.sort((a, b) => b.population - a.population);
+      countriesToSort.sort((a, b) => b.population - a.population);
       break;
   }
-  makeCountry(arrToSort.slice(0, pageSize));
+  makeCountry(countriesToSort.slice(0, pageSize));
 }
 
 /////////////////
@@ -239,7 +276,11 @@ function getPaginationInfo() {
   }
   nextBtn.disabled = false;
   paginationInfo.textContent = "";
-  paginationInfo.textContent = `Page ${pageCount} of ${Math.ceil(countriesToSort.length / pageSize)}`;
+  let maxPageCount = Math.ceil(countriesToSort.length / pageSize);
+  if (maxPageCount === 0) {
+    maxPageCount = 1;
+  }
+  paginationInfo.textContent = `Page ${pageCount} of ${maxPageCount}`;
   if (pageCount === Math.ceil(countriesToSort.length / pageSize)) {
     nextBtn.disabled = true;
   }
@@ -277,22 +318,20 @@ function openModal(countryModalInfo) {
   countryModal.insertBefore(modalHeader, countryModal.firstChild);
   // MODAL HEAD
   cardInfoList.firstElementChild.remove();
-  // SHORT MAKE LI FUNCTION
-  const makeCardInfo = (text) => makeEl("li", "card__info-data", text);
-  // SHORT MAKE LI FUNCTION
-  const officialName = makeCardInfo(`Official name: ${countryModalInfo.officialName}`);
+
+  const officialName = makeInfoCard(`Official name: ${countryModalInfo.officialName}`);
   cardInfoList.prepend(officialName);
 
-  const countryModalSubregion = makeCardInfo(`Subregion: ${countryModalInfo.subregion}`);
+  const countryModalSubregion = makeInfoCard(`Subregion: ${countryModalInfo.subregion}`);
 
-  const countryModalLanguages = makeCardInfo(`Languages: ${Object.values(countryModalInfo.language).join(", ")}`);
+  const countryModalLanguages = makeInfoCard(`Languages: ${Object.values(countryModalInfo.language).join(", ")}`);
 
-  const countryModalCurrency = makeCardInfo(
+  const countryModalCurrency = makeInfoCard(
     `Currency: ${Object.values(countryModalInfo.currency)
       .map((c) => c.name)
       .join(", ")}`,
   );
-  const countryModalBorders = makeCardInfo(`Borders: ${CheckIfBordersExist(countryModalInfo.borders.join(", "))}`);
+  const countryModalBorders = makeInfoCard(`Borders: ${CheckIfBordersExist(countryModalInfo.borders.join(", "))}`);
 
   const cancelModalBtn = makeEl("button", "cancel-modal", "Cancel");
   cancelModalBtn.onclick = closeModalOverlay;
@@ -321,4 +360,70 @@ function CheckIfBordersExist(borders) {
   } else {
     return borders;
   }
+}
+
+//////////////////////////////
+// SEARCH COUNTRY FUNCTION //
+////////////////////////////
+searchCountryInput.oninput = searchCountry;
+searchCountryBtn.onclick = searchCountry;
+async function searchCountry(e) {
+  searchResults.textContent = "";
+  const searchCountryName = searchCountryInput.value.trim().toLowerCase();
+  let countriesToFilter = [...countriesFromAPI];
+  const selectedContinents = [...regionSelect.selectedOptions].map((o) => o.value);
+  if (!selectedContinents.includes("All")) {
+    countriesToFilter = countriesToFilter.filter((c) => selectedContinents.includes(c.continents[0]));
+  }
+
+  let matchedCountries = countriesToFilter.filter((country) => country.name.common.toLowerCase().includes(searchCountryName));
+
+  if (matchedCountries.length) {
+    console.log(matchedCountries.length, searchCountryName);
+    // countriesToFilter = [...matchedCountries];
+    countriesToSort = [...matchedCountries];
+  }
+
+  sortBy === "" ? makeCountry(matchedCountries.slice(0, pageSize)) : sortCountries();
+  const matchedCountriesContinent = [];
+  matchedCountries.forEach((el) => {
+    if (!matchedCountriesContinent.includes(el.continents[0])) matchedCountriesContinent.push(el.continents[0]);
+  });
+
+  filterInfoResult.textContent = matchedCountries.length;
+  console.log(matchedCountries);
+  console.log(matchedCountriesContinent);
+  // SELECT REGION
+  const filterByRegionCountries = [...regionSelect.options];
+  filterByRegionCountries.forEach((el) => (el.disabled = false));
+  filterByRegionCountries.forEach((el) => {
+    if (matchedCountriesContinent.includes(el.value)) {
+      el.selected = true;
+    } else {
+      el.selected = false;
+      el.disabled = true;
+    }
+  });
+
+  if (!searchCountryName) {
+    countriesToSort = [...countriesFromAPI];
+    sortCountries();
+    const options = [...regionSelect.options];
+    options.forEach((el) => {
+      el.selected = true;
+    });
+    filterInfoResult.textContent = countriesToSort.length;
+  }
+
+  checksAllContinent();
+  getPaginationInfo();
+}
+
+/////////////////////////////////////////////////
+// CHECK IF SEARCH HAS COUNTRIES ON CONTINENT //
+// IF NOT DISABLE OPTION //
+function disableOptions() {
+  const options = [...regionSelect.options];
+  const optionAll = options.find((option) => option.value === "All");
+  const continentOptions = options.filter((option) => option.value !== "All");
 }
