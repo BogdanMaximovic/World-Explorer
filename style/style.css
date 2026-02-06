@@ -14,7 +14,8 @@
   --border: rgb(209, 210, 213); /*light gray border*/
   --border-hover: rgb(40, 40, 40); /* dark gray border-hover*/
   --sub-text: rgb(201, 201, 201); /*gray*/
-  --accent: rgb(37, 99, 235); /*blue*/
+  --button: rgb(37, 99, 235); /*blue*/
+  --button-active: rgb(30, 81, 191);
   --text: rgb(0, 0, 0); /*BLACK*/
   --close-error: rgb(210, 45, 45); /*RED*/
 }
@@ -28,7 +29,8 @@
   --sub-text: rgb(63, 63, 63); /*gray*/
   --border: rgb(74, 95, 125); /*dark gray border*/
   --border-hover: rgb(210, 210, 210); /* dark gray border-hover*/
-  --accent: rgb(59, 130, 246); /*blue*/
+  --button: rgb(59, 130, 246); /*blue*/
+  --button-active: rgb(41, 107, 213);
   --text: rgb(255, 255, 255); /*WHITE*/
 }
 
@@ -36,6 +38,17 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+  background-color: var(--bg); /*light gray*/
 }
 
 /* HEADER */
@@ -91,11 +104,6 @@
 .light:hover {
   border: 1px solid var(--border-hover);
   cursor: pointer;
-}
-
-/* MAIN */
-main {
-  background-color: var(--bg); /*light gray*/
 }
 
 /* FILTER */
@@ -262,7 +270,6 @@ main {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
   border: 1px solid var(--border);
   border-radius: 10px;
   display: flex;
@@ -272,6 +279,18 @@ main {
   margin-bottom: 10px;
   min-width: 290px;
   color: var(--text); /* WHITE / BLACK */
+  animation: slide 0.4s ease-out forwards;
+}
+
+@keyframes slide {
+  from {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
 }
 
 .close-modal {
@@ -357,7 +376,7 @@ main {
   align-items: center;
   justify-content: space-between;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border); /* LIGHT/DARK GRAY */
   background: transparent;
   color: var(--text); /*WHITE / BLACK*/
 }
@@ -378,18 +397,28 @@ main {
 .page-size {
   border: none;
   cursor: pointer;
-  background-color: var(--card);
-  color: var(--text);
+  background-color: var(--card); /*white*/ /*dark blue-gray*/
+  color: var(--text); /*WHITE / BLACK*/
 }
 
 .page-size:active {
-  border: var(--border-hover);
+  border: var(--border-hover); /* dark gray border-hover*/
+}
+
+.footer__btn:disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.7;
 }
 
 .footer__btn:hover {
   border: 1px solid var(--border-hover); /* dark gray border-hover*/
   cursor: pointer;
-  background-color: var(--accent);
+  background-color: var(--button); /*BLUE*/
+}
+
+.footer__btn:active {
+  background-color: var(--button-active);
 }
 
 .light-prev::before {
@@ -461,10 +490,19 @@ main {
   height: 40px;
   width: 40px;
   border-radius: 50%;
-  border: none;
+  border: 1px solid var(--border);
   background: url(../images/icons/dark-up.svg) center no-repeat;
-  background-color: var(--accent); /*BLUE*/
+  background-color: var(--button); /*BLUE*/
   transition: right 1s ease;
+}
+
+.scroll-to-top:hover {
+  background-color: rgb(16, 87, 239);
+  border: 1px solid rgb(190, 190, 195);
+}
+
+.scroll-to-top:active {
+  background-color: var(--button-active);
 }
 
 .show {
