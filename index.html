@@ -12,7 +12,7 @@
         <img src="images/earth.png" alt="Earth Logo" class="brand__logo" />
         <h1 class="brand__title">World Explorer</h1>
       </div>
-      <button type="button" class="header__theme-btn dark" aria-label="Switch theme button" id="switch-theme"></button>
+      <button type="button" class="header__theme-btn" aria-label="Switch theme button" id="switch-theme"></button>
     </header>
     <main>
       <section class="filter">
@@ -46,23 +46,27 @@
       <section class="search-results" id="search-results"></section>
     </main>
 
+    <button class="scroll-to-top hide" id="scroll-to-top"></button>
+
     <footer class="footer">
       <button type="button" class="footer__btn prev" id="prev-btn">Prev</button>
 
-      <p id="pagination-info"></p>
-      <div class="footer__page-size">
-        <label for="page-size">Items per page</label>
-        <select name="page-size" id="page-size" class="page-size">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="12" selected>12</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-        </select>
+      <div class="footer__pagination">
+        <p id="pagination-info"></p>
+        <div class="pagination__page-size">
+          <label for="page-size">Items per page</label>
+          <select name="page-size" id="page-size" class="page-size">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
       </div>
 
       <button class="footer__btn next" type="button" id="next-btn">Next</button>
     </footer>
   </body>
-  <script src="script/script.js"></script>
+  <script src="script/script.js" type="module"></script>
 </html>
