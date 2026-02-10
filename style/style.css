@@ -18,12 +18,15 @@
   --button-active: rgb(30, 81, 191);
   --text: rgb(0, 0, 0); /*BLACK*/
   --close-error: rgb(210, 45, 45); /*RED*/
+  --close-modal: rgb(238, 135, 62); /*YELLOW / ORANGE*/
+  --option-hover: rgb(176, 191, 211);
 }
 
 .dark-mode {
   /* DARK VARIABLES*/
   --bg: rgb(2, 6, 23); /*dark blue*/
   --card: rgb(17, 24, 39); /*dark blue-gray*/
+  --tabs: rgb(10, 15, 25);
   --card-hover: rgb(55, 59, 67); /* lighter black */
   --text: rgb(229, 231, 235); /*light gray text */
   --sub-text: rgb(63, 63, 63); /*gray*/
@@ -32,6 +35,7 @@
   --button: rgb(59, 130, 246); /*blue*/
   --button-active: rgb(41, 107, 213);
   --text: rgb(255, 255, 255); /*WHITE*/
+  --option-hover: rgb(79, 85, 93);
 }
 
 * {
@@ -120,7 +124,6 @@ main {
   border: 1px solid var(--border); /*light gray border*/
   display: flex;
   align-items: center;
-  padding: 0 10px;
   background-color: var(--card); /*white*/
 }
 
@@ -141,53 +144,79 @@ main {
   padding: 10px;
   border: none;
   width: 100%;
+  border-radius: 10px;
   background: var(--card); /*white*/
   color: var(--text); /*WHITE / BLACK*/
+  outline: none;
 }
 
 .search__input::placeholder {
   color: var(--text); /*WHITE / BLACK*/
 }
 
+input:-webkit-autofill {
+  -webkit-appearance: none !important;
+  -webkit-box-shadow: 0 0 0 30px var(--card) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
 /* FILTER REGION */
 .filter__region {
+  padding-left: 10px;
   border-radius: 10px;
   border: 1px solid var(--border); /*light gray border*/
-  padding: 0 10px;
   background-color: var(--card); /*white*/
 }
 
 .region__continents {
   border: none;
   width: 200px;
-  padding: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
   font-weight: 600;
-  background: var(--card); /*white*/
-  color: var(--text); /*WHITE / BLACK*/
+  background: var(--card);
+  color: var(--text);
   cursor: pointer;
+  outline: none;
 }
 
 .region__continents option {
   background: var(--card); /*white*/
   color: var(--text); /*WHITE / BLACK*/
+  display: flex;
+  gap: 10px;
+  padding: 5px 10px;
+  width: 100%;
+}
+
+.region__continents option:hover {
+  background-color: var(--option-hover);
 }
 
 /* FILTER SORT */
 .filter__sort {
   border-radius: 10px;
   border: 1px solid var(--border); /*light gray border*/
-  padding: 0 10px;
+  padding-left: 10px;
   background-color: var(--card); /*white*/
+}
+.filter__sort:focus {
+  outline: 2px solid black;
 }
 
 .sort__select {
   border: none;
   width: 200px;
-  padding: 10px 0;
+  border-radius: 10px;
+  padding: 10px;
   font-weight: 600;
   background-color: var(--card); /*white*/
   color: var(--text); /*WHITE / BLACK*/
   cursor: pointer;
+  outline: none;
+}
+select:focus {
+  border: none;
 }
 
 /* SEARCH/FILTER INFO SECTION */
@@ -202,6 +231,35 @@ main {
 
 .filter-info__status {
   display: none;
+}
+
+/* TABS SECTION */
+.tabs {
+  background-color: var(--tabs);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tabs__btns {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  width: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--body-text);
+  text-align: center;
+  padding: 15px;
+  transition: transform 0.3s ease;
+}
+
+.tabs__btns:hover {
+  background-color: var(--card-hover);
+}
+
+.active-tab {
+  border-bottom: 3px solid var(--button-active);
 }
 
 /* SEARCH RESULTS */
@@ -235,14 +293,15 @@ main {
 }
 
 .card__flag {
-  height: 60px;
-  width: 100px;
+  height: 58px;
+  width: 98px;
   border: 1px solid var(--border); /*light gray border*/
   border-radius: 5px;
   margin: 0 10px 10px 0;
 }
 
 .card__name {
+  list-style: none;
   margin-bottom: 15px;
   font-weight: 600;
   font-size: var(--card-title);
@@ -314,6 +373,7 @@ main {
   height: 32px;
   border: none;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .close-modal-btn-light::after {
@@ -325,7 +385,7 @@ main {
 
 .close-modal-btn:hover {
   border-radius: 5px;
-  background-color: var(--close-error); /*RED*/
+  background-color: var(--close-modal); /*RED*/
 }
 
 .cancel-modal {
@@ -337,10 +397,11 @@ main {
   display: block;
   border: 1px solid var(--border); /*light gray border*/ /*dark gray border*/
   color: var(--text);
+  transition: background-color 0.3s;
 }
 
 .cancel-modal:hover {
-  background-color: var(--close-error); /*RED*/
+  background-color: var(--close-modal); /*RED*/
   border: 1px solid var(--border-hover); /* dark gray border-hover*/
 }
 
@@ -351,6 +412,7 @@ main {
   top: 0;
   z-index: 100;
   background-color: rgba(35, 35, 35, 0.6); /*BLACK T=0.6*/
+  cursor: pointer;
 }
 
 /* FOOTER */
@@ -358,6 +420,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 20px 15px;
   border-top: 1px solid var(--border); /*light gray border*/
@@ -370,22 +433,12 @@ main {
 }
 
 .footer__btn {
-  width: 70px;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  width: 30px;
+  height: 30px;
   border-radius: 10px;
   border: 1px solid var(--border); /* LIGHT/DARK GRAY */
   background: transparent;
   color: var(--text); /*WHITE / BLACK*/
-}
-
-.footer__pagination {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
 }
 
 .pagination__page-size {
@@ -408,7 +461,7 @@ main {
 .footer__btn:disabled {
   pointer-events: none;
   cursor: default;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .footer__btn:hover {
@@ -419,6 +472,14 @@ main {
 
 .footer__btn:active {
   background-color: var(--button-active);
+}
+
+.light-first-page::before {
+  content: url(../images/icons/light-first.svg);
+}
+
+.dark-first-page::before {
+  content: url(../images/icons/dark-first.svg);
 }
 
 .light-prev::before {
@@ -433,6 +494,14 @@ main {
 }
 .dark-next::after {
   content: url(../images/icons/dark-next.svg);
+}
+
+.light-last-page::after {
+  content: url(../images/icons/light-last.svg);
+}
+
+.dark-last-page::after {
+  content: url(../images/icons/dark-last.svg);
 }
 
 /* ERROR/TOAST MESSAGE */
@@ -534,10 +603,12 @@ main {
   .search-results {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: 10px;
+    justify-content: center;
   }
   .search-results__card {
     width: 49%;
+    margin-bottom: 0;
   }
   .filter-info__status {
     display: block;
@@ -575,7 +646,6 @@ main {
     justify-self: center;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
   }
   .search-results__card {
     width: 32%;

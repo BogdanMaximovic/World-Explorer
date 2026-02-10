@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="World Explorer lets you explore countries worldwide, with key facts and information about each country." />
+    <link rel="icon" type="image/png" href="images/earth.png" />
     <link rel="stylesheet" href="style/style.css" />
     <title>World Explorer</title>
   </head>
@@ -17,8 +19,8 @@
     <main>
       <section class="filter">
         <div class="filter__search">
-          <button class="search__btn" id="search__btn"></button>
-          <input class="search__input" type="search" placeholder="Search Countries..." aria-label="Search country" id="search__input" />
+          <button class="search__btn" id="search__btn" aria-label="Search countries"></button>
+          <input class="search__input" type="search" placeholder="Search Country..." aria-label="Search country" id="search__input" />
         </div>
 
         <div class="filter__region">
@@ -43,30 +45,38 @@
         <p class="filter-info__status">Status:<span id="filter-status"></span></p>
       </section>
 
+      <section class="tabs">
+        <button class="tabs__btns" id="not-independent-btn">Not Independent Countries</button>
+        <button class="tabs__btns" id="independent-btn">Independent Countries</button>
+      </section>
+
       <section class="search-results" id="search-results"></section>
     </main>
 
-    <button class="scroll-to-top hide" id="scroll-to-top"></button>
+    <button class="scroll-to-top hide" id="scroll-to-top" aria-label="Scroll to top"></button>
 
     <footer class="footer">
-      <button type="button" class="footer__btn prev" id="prev-btn">Prev</button>
+      <button type="button" class="footer__btn first-page" id="first-page-btn" aria-label="first page"></button>
 
-      <div class="footer__pagination">
-        <p id="pagination-info"></p>
-        <div class="pagination__page-size">
-          <label for="page-size">Items per page</label>
-          <select name="page-size" id="page-size" class="page-size">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="12">12</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-          </select>
-        </div>
+      <button type="button" class="footer__btn prev" id="prev-btn" aria-label="previous page"></button>
+
+      <p id="pagination-info"></p>
+
+      <button type="button" class="footer__btn next" id="next-btn" aria-label="next page"></button>
+
+      <button type="button" class="footer__btn last-page" id="last-page-btn" aria-label="last page"></button>
+
+      <div class="pagination__page-size">
+        <label for="page-size">Items per page</label>
+        <select name="page-size" id="page-size" class="page-size">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="12">12</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
       </div>
-
-      <button class="footer__btn next" type="button" id="next-btn">Next</button>
     </footer>
   </body>
-  <script src="script/script.js" type="module"></script>
+  <script src="script/script.js"></script>
 </html>
