@@ -2,7 +2,7 @@ const switchThemeBtn = document.getElementById("switch-theme");
 const searchCountryBtn = document.getElementById("search__btn");
 const searchCountryInput = document.getElementById("search__input");
 const regionSelect = document.getElementById("region");
-const sortBy = document.getElementById("sort");
+const sortBySelect = document.getElementById("sort");
 const filterInfoResult = document.getElementById("filter-info__result");
 const responseStatus = document.getElementById("filter-status");
 const searchResults = document.getElementById("search-results");
@@ -12,11 +12,15 @@ const nextBtn = document.getElementById("next-btn");
 const pageSizeSelect = document.getElementById("page-size");
 const firstPageBtn = document.getElementById("first-page-btn");
 const lastPageBtn = document.getElementById("last-page-btn");
-const footer = document.querySelector("footer");
 const notIndependentTab = document.getElementById("not-independent-btn");
 const independentTab = document.getElementById("independent-btn");
+const searchBySelect = document.getElementById("search-by");
+const main = document.querySelector("main");
+const filterSection = document.getElementById("filter");
+const collapseSlidePanel = document.getElementById("filter-collapse");
+const collapseBtn = document.getElementById("collapse-btn");
 
-const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,population,independent,flags,currencies,subregion,languages,borders,continents,capital";
+const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,population,independent,flags,currencies,languages,borders,continents,capital,coatOfArms";
 
 let countriesFromAPI = [];
 let notIndependentCountries = [];
@@ -26,6 +30,27 @@ let pageCount = 1;
 const saveFilter = JSON.parse(localStorage.getItem("filters")) || [];
 let darkMode = JSON.parse(localStorage.getItem("darkMode"));
 let isIndependentActive = true;
+
+//////////////////////
+// FILTER COLLAPSE //
+////////////////////
+let isFilterSectionCollapsed = false;
+collapseBtn.onclick = () => {
+  isFilterSectionCollapsed = !isFilterSectionCollapsed;
+
+  collapseBtn.classList.toggle("collapse__btn", !isFilterSectionCollapsed);
+  collapseBtn.classList.toggle("expand__btn", isFilterSectionCollapsed);
+
+  if (isFilterSectionCollapsed) {
+    filterSection.remove();
+  } else {
+    main.prepend(filterSection);
+  }
+};
+
+window.addEventListener("scroll", () => {
+  window.scrollY >= 300 ? collapseSlidePanel.classList.add("filter__collapse-by") : collapseSlidePanel.classList.remove("filter__collapse-by");
+});
 
 //////////////////////
 // DARK/LIGHT MODE //
@@ -64,7 +89,7 @@ async function getAPIData() {
     countriesFromAPI = data.filter((country) => country.independent);
     countriesToSort = [...countriesFromAPI];
     notIndependentCountries = [...data.filter((countries) => !countries.independent)];
-    // console.log(notIndependentCountries);
+
     makeOptions(countriesFromAPI);
 
     responseStatus.textContent = " Loaded";
@@ -116,7 +141,7 @@ async function loadAllCountries() {
   const regionOptions = [...regionSelect.options];
 
   if (saveFilter.includes("All")) {
-    render();
+    sortCountries();
     // IF SOME WERE SELECTED
   } else {
     countriesToSort = independentCountries.filter((el) => saveFilter.includes(el.continents[0]));
@@ -124,7 +149,7 @@ async function loadAllCountries() {
       saveFilter.includes(el.value) ? (el.selected = true) : (el.selected = false);
     });
 
-    render();
+    sortCountries();
     prevBtn.disabled = true;
     firstPageBtn.disabled = true;
     if (!saveFilter.length) {
@@ -132,7 +157,7 @@ async function loadAllCountries() {
       optionEurope.selected = true;
       localStorage.setItem("filters", JSON.stringify([optionEurope.value]));
       countriesToSort = independentCountries.filter((el) => el.continents[0] === optionEurope.value);
-      render();
+      sortCountries();
     }
   }
   [...pageSizeSelect].forEach((el) => {
@@ -190,7 +215,7 @@ function makeCountry(data) {
       cardInfo,
       commonName: country.name.common,
       officialName: country.name.official,
-      subregion: country.subregion,
+      coatOfArms: country.coatOfArms,
       language: country.languages,
       currency: country.currencies,
       borders: country.borders,
@@ -257,7 +282,7 @@ function clickOptionAll() {
     localStorage.setItem("filters", JSON.stringify(optionsContinents));
   }
   filterInfoResult.textContent = countriesToSort.length;
-  sortBy.value === "" ? render() : sortCountries();
+  sortCountries();
 }
 
 //////////////////////////
@@ -295,19 +320,19 @@ function filterByRegion() {
   filterInfoResult.textContent = countriesToSort.length;
 
   pageCount = 1;
-  sortBy.value === "" ? render() : sortCountries();
+  sortCountries();
   getPaginationInfo();
 }
 
 //////////////////////////////
 // SORT BY NAME/POPULATION //
 ////////////////////////////
-sortBy.onchange = sortCountries;
+sortBySelect.onchange = sortCountries;
 function sortCountries() {
   pageCount = 1;
   prevBtn.disabled = true;
   firstPageBtn.disabled = true;
-  switch (sortBy.value) {
+  switch (sortBySelect.value) {
     case "name-asc":
       countriesToSort.sort((a, b) => a.name.common.localeCompare(b.name.common));
       break;
@@ -402,6 +427,9 @@ function openModal(countryModalInfo) {
   const modalOverlay = makeEl("div", "modal-overlay", undefined, "modal-overlay");
   modalOverlay.onclick = () => modalOverlay.remove();
   const countryModal = countryModalInfo.countryCard.cloneNode(true);
+  countryModal.onclick = (e) => {
+    e.stopPropagation();
+  };
   const countryBody = makeEl("div", "country-modal-body");
   const modalFlag = countryModal.querySelector("img.card__flag");
   const cardInfoList = countryModal.querySelector("ul.card__info");
@@ -409,11 +437,11 @@ function openModal(countryModalInfo) {
   // MODAL HEAD
   const modalHeader = makeEl("div", "close-modal");
   const modalHeaderTitle = makeEl("h2", "modal-title", countryModalInfo.countryName.textContent);
-  const closeModalBtn = makeEl("button", "close-modal-btn");
-  closeModalBtn.onclick = () => modalOverlay.remove();
 
+  const closeModalBtn = makeEl("button", "close-modal-btn");
   closeModalBtn.classList.toggle("close-modal-btn-light", darkMode);
   closeModalBtn.classList.toggle("lose-modal-btn-dark", !darkMode);
+  closeModalBtn.onclick = () => modalOverlay.remove();
 
   modalHeader.append(modalHeaderTitle, closeModalBtn);
   countryModal.insertBefore(modalHeader, countryModal.firstChild);
@@ -423,22 +451,44 @@ function openModal(countryModalInfo) {
   const officialName = makeInfoCard(`Official name: ${countryModalInfo.officialName}`);
   cardInfoList.prepend(officialName);
 
-  const countryModalSubregion = makeInfoCard(`Subregion: ${countryModalInfo.subregion.length ? countryModalInfo.subregion : "None"}`);
-
   const countryModalLanguages = makeInfoCard(`Languages: ${Object.values(countryModalInfo.language).length ? Object.values(countryModalInfo.language).join(", ") : "None"}`);
 
   const countryModalCurrency = makeInfoCard(
     `Currency: ${Object.values(countryModalInfo.currency)
       .map((c) => c.name)
-      .join(", ")} (${Object.keys(countryModalInfo.currency).length ? Object.values(countryModalInfo.currency)[0].symbol : "None"})`,
+      .join(", ")}  (${Object.keys(countryModalInfo.currency).length ? Object.values(countryModalInfo.currency)[0].symbol : "None"})`,
   );
 
   const countryModalBorders = makeInfoCard(`Borders: ${countryModalInfo.borders.length ? countryModalInfo.borders.join(", ") : "None"}`);
 
+  const modalCoatOfArmsBtn = makeEl("button", "modal-coat-of-arms-btn", "Show Coat of Arms");
   const cancelModalBtn = makeEl("button", "cancel-modal", "Close");
   cancelModalBtn.onclick = () => modalOverlay.remove();
 
-  cardInfoList.append(countryModalSubregion, countryModalLanguages, countryModalCurrency, countryModalBorders, cancelModalBtn);
+  const modalFooter = makeEl("div", "modal-footer");
+
+  modalFooter.append(modalCoatOfArmsBtn, cancelModalBtn);
+
+  cardInfoList.append(countryModalLanguages, countryModalCurrency, countryModalBorders, modalFooter);
+
+  const modalCoatOfArms = makeEl("img", "modal-coat-of-arms");
+
+  modalCoatOfArms.src = countryModalInfo.coatOfArms.svg;
+  modalCoatOfArms.alt = `The coat of arms of ${countryModalInfo.commonName}`;
+  if (!countryModalInfo.coatOfArms.svg) modalCoatOfArmsBtn.disabled = true;
+
+  let isCoatOfArmsActive = false;
+  modalCoatOfArmsBtn.onclick = () => {
+    if (!isCoatOfArmsActive) {
+      modalCoatOfArmsBtn.textContent = "Hide Coat of Arms";
+      modalFooter.before(modalCoatOfArms);
+      isCoatOfArmsActive = true;
+    } else if (isCoatOfArmsActive) {
+      modalCoatOfArmsBtn.textContent = "Show Coat of Arms";
+      modalCoatOfArms.remove();
+      isCoatOfArmsActive = false;
+    }
+  };
 
   document.body.classList.add("body-modal");
 
@@ -468,14 +518,30 @@ async function searchCountry(e) {
     countriesToFilter = countriesToFilter.filter((c) => selectedContinents.includes(c.continents[0]));
   }
 
-  countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().includes(searchCountryName));
+  if (searchBySelect.value === "contains") {
+    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().includes(searchCountryName));
+  } else if (searchBySelect.value === "starts-with") {
+    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().startsWith(searchCountryName));
+  } else if (searchBySelect.value === "ends-with") {
+    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().endsWith(searchCountryName));
+  } else if (searchBySelect.value === "capital") {
+    countriesToSort = countriesToFilter.filter((country) => (country.capital[0] ? country.capital[0].toLowerCase().includes(searchCountryName) : ""));
+  }
 
   if (!countriesToSort.length) searchResults.textContent = "";
 
   filterInfoResult.textContent = countriesToSort.length;
-  sortBy.value === "" ? render() : sortCountries();
+  sortCountries();
   checksAllContinent();
 }
+
+////////////////
+// SEARCH BY //
+//////////////
+searchBySelect.onchange = () => {
+  searchCountryInput.value = "";
+  filterByRegion();
+};
 
 ///////////////////////////
 // SKELETON PLACEHOLDER //
@@ -522,12 +588,12 @@ function render() {
   const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
   if (!selected.length) {
     searchCountryInput.disabled = true;
-    sortBy.disabled = true;
+    sortBySelect.disabled = true;
     nextBtn.disabled = true;
     lastPageBtn.disabled = true;
   } else {
     searchCountryInput.disabled = false;
-    sortBy.disabled = false;
+    sortBySelect.disabled = false;
     nextBtn.disabled = false;
     lastPageBtn.disabled = false;
   }
@@ -540,7 +606,6 @@ independentTab.onclick = () => showTabContent(true);
 function showTabContent(independent) {
   const regionOptions = [...regionSelect.options];
 
-  // regionSelect.textContent = "";
   if (independent) {
     if (!isIndependentActive) {
       const optionAntarctica = regionOptions.find((el) => el.value === "Antarctica");
@@ -553,7 +618,6 @@ function showTabContent(independent) {
 
     isIndependentActive = true;
   } else {
-    console.log([...regionSelect.options][0].selected);
     const optionAntarctica = makeEl("option", undefined, "Antarctica");
     regionSelect.append(optionAntarctica);
     if (regionOptions[0].selected) optionAntarctica.selected = true;
