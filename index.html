@@ -17,21 +17,40 @@
       <button type="button" class="header__theme-btn" aria-label="Switch theme button" id="switch-theme"></button>
     </header>
     <main>
-      <section class="filter">
+      <div class="filter__collapse" id="filter-collapse">
+        <button aria-label="collapse filters" class="collapse__btn" title="Collapse filters" id="collapse-btn"></button>
+      </div>
+
+      <section class="filter" id="filter">
         <div class="filter__search">
           <button class="search__btn" id="search__btn" aria-label="Search countries"></button>
           <input class="search__input" type="search" placeholder="Search Country..." aria-label="Search country" id="search__input" />
         </div>
 
-        <div class="filter__region">
+        <div class="filter__search-by">
+          <select name="search-by" class="search-by" id="search-by" aria-label="search by">
+            <button>
+              Search by:
+              <selectedcontent></selectedcontent>
+            </button>
+            <option value="contains">Contains</option>
+            <option value="starts-with">Starts with</option>
+            <option value="ends-with">Ends with</option>
+            <option value="capital">Capital</option>
+          </select>
+        </div>
+
+        <div class="filter__region" id="filter__region">
           <label for="region">Region:</label>
           <select class="region__continents" name="region" id="region" multiple size="1"></select>
         </div>
 
         <div class="filter__sort">
-          <label for="sort">Sort by:</label>
-          <select class="sort__select" name="sort" id="sort">
-            <option value="" disabled selected>Choose option</option>
+          <select class="sort__select" name="sort" id="sort" aria-label="sort countries by">
+            <button>
+              Sort by:
+              <selectedcontent></selectedcontent>
+            </button>
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
             <option value="population-asc">Population (asc)</option>
@@ -53,7 +72,7 @@
       <section class="search-results" id="search-results"></section>
     </main>
 
-    <button class="scroll-to-top hide" id="scroll-to-top" aria-label="Scroll to top"></button>
+    <button class="scroll-to-top" id="scroll-to-top" aria-label="Scroll to top"></button>
 
     <footer class="footer">
       <button type="button" class="footer__btn first-page" id="first-page-btn" aria-label="first page"></button>
@@ -69,11 +88,9 @@
       <div class="pagination__page-size">
         <label for="page-size">Items per page</label>
         <select name="page-size" id="page-size" class="page-size">
-          <option value="5">5</option>
-          <option value="10">10</option>
           <option value="12">12</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
+          <option value="24">24</option>
+          <option value="48">48</option>
         </select>
       </div>
     </footer>
