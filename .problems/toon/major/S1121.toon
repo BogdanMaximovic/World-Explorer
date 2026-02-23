@@ -1,0 +1,28 @@
+generatedAt: "2026-02-20T13:40:07.432Z"
+rule: S1121
+count: 2
+details:
+  code: "javascript:S1121"
+  source: SonarLintScanner
+  path: "c:\\Users\\lazar.milovanovic\\OneDrive - Soprex\\Desktop\\World-Explorer"
+occurrences[2]:
+  - key: "script/script.js:149:74:0"
+    file: script/script.js
+    line: 150
+    textRange:
+      startLine: 150
+      endLine: 150
+      startOffset: 74
+      endOffset: 75
+    message: "Extract the assignment of \"el.selected\" from this expression."
+    severity: MAJOR
+  - key: "script/script.js:149:51:1"
+    file: script/script.js
+    line: 150
+    textRange:
+      startLine: 150
+      endLine: 150
+      startOffset: 51
+      endOffset: 52
+    message: "Extract the assignment of \"el.selected\" from this expression."
+    severity: MAJOR

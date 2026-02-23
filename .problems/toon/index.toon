@@ -1,0 +1,23 @@
+generatedAt: "2026-02-20T13:40:07.432Z"
+totalIssues: 12
+groups:
+  misc:
+    count: 8
+    file: ""
+    textFile: ""
+    toonFile: minor/misc.toon
+  S1121:
+    count: 2
+    file: ""
+    textFile: ""
+    toonFile: major/S1121.toon
+  S7776:
+    count: 1
+    file: ""
+    textFile: ""
+    toonFile: major/S7776.toon
+  S7785:
+    count: 1
+    file: ""
+    textFile: ""
+    toonFile: major/S7785.toon

@@ -137,7 +137,6 @@ main {
   align-items: center;
   background-color: var(--collapse);
   transition: right 1s ease;
-  /* transition: top 1s ease; */
 }
 
 .filter__collapse:hover {
@@ -146,7 +145,6 @@ main {
 
 .filter__collapse-by {
   right: -100px;
-  /* top: -100px; */
 }
 
 .expand__btn {
@@ -191,7 +189,7 @@ main {
   padding: 10px;
   border: none;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 0 12px 12px 0;
   background: var(--card); /*white*/
   color: var(--text); /*WHITE / BLACK*/
   outline: none;
@@ -267,8 +265,6 @@ option::checkmark {
   height: 13px;
   margin-right: 10px;
   padding-bottom: 10px;
-}
-option::checkmark {
   content: url(../images/icons/no-check.svg);
 }
 
@@ -278,7 +274,6 @@ option:checked::checkmark {
 }
 
 .filter__sort {
-  /* width: 100%; */
   display: flex;
 }
 
@@ -300,7 +295,6 @@ option {
 
 select {
   flex: 1;
-  /* border: none; */
   border: 1px solid var(--border);
   padding: 10px;
   border-radius: 12px;
@@ -350,6 +344,7 @@ select:open::picker-icon {
   font-size: var(--body-text);
   text-align: center;
   padding: 15px;
+  height: 70px;
 }
 
 .tabs__btns:hover {
@@ -453,9 +448,6 @@ select:open::picker-icon {
 
 .close-modal {
   margin-bottom: 10px;
-}
-
-.close-modal {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -730,7 +722,6 @@ select:open::picker-icon {
   .filter {
     flex-direction: row;
     flex-wrap: wrap;
-    /* justify-content: space-between; */
   }
   .filter__search {
     width: 60%;
@@ -749,6 +740,11 @@ select:open::picker-icon {
     display: flex;
     justify-content: space-between;
   }
+
+  .tabs__btns {
+    height: 50px;
+  }
+
   .search-results {
     display: flex;
     flex-wrap: wrap;

@@ -1,0 +1,89 @@
+generatedAt: "2026-02-20T13:40:07.432Z"
+rule: misc
+count: 8
+details:
+  code: "6133"
+  source: cSpell
+  path: "c:\\Users\\lazar.milovanovic\\OneDrive - Soprex\\Desktop\\World-Explorer"
+occurrences[8]:
+  - key: "images/wold-explorer-icons/font/demo.html:10:1918:11"
+    file: images/wold-explorer-icons/font/demo.html
+    line: 11
+    textRange:
+      startLine: 11
+      endLine: 11
+      startOffset: 1918
+      endOffset: 1922
+    message: "\"rltv\": Unknown word."
+    severity: MINOR
+  - key: "index.html:33:15:5"
+    file: index.html
+    line: 34
+    textRange:
+      startLine: 34
+      endLine: 34
+      startOffset: 15
+      endOffset: 30
+    message: "\"selectedcontent\": Unknown word."
+    severity: MINOR
+  - key: "index.html:33:33:6"
+    file: index.html
+    line: 34
+    textRange:
+      startLine: 34
+      endLine: 34
+      startOffset: 33
+      endOffset: 48
+    message: "\"selectedcontent\": Unknown word."
+    severity: MINOR
+  - key: "index.html:51:15:7"
+    file: index.html
+    line: 52
+    textRange:
+      startLine: 52
+      endLine: 52
+      startOffset: 15
+      endOffset: 30
+    message: "\"selectedcontent\": Unknown word."
+    severity: MINOR
+  - key: "index.html:51:33:8"
+    file: index.html
+    line: 52
+    textRange:
+      startLine: 52
+      endLine: 52
+      startOffset: 33
+      endOffset: 48
+    message: "\"selectedcontent\": Unknown word."
+    severity: MINOR
+  - key: "script/script.js:506:29:4"
+    file: script/script.js
+    line: 507
+    textRange:
+      startLine: 507
+      endLine: 507
+      startOffset: 29
+      endOffset: 30
+    message: 'e' is declared but its value is never read.
+    severity: INFO
+    source: ts
+  - key: "style/style.css:262:8:9"
+    file: style/style.css
+    line: 263
+    textRange:
+      startLine: 263
+      endLine: 263
+      startOffset: 8
+      endOffset: 17
+    message: "\"checkmark\": Unknown word."
+    severity: MINOR
+  - key: "style/style.css:270:16:10"
+    file: style/style.css
+    line: 271
+    textRange:
+      startLine: 271
+      endLine: 271
+      startOffset: 16
+      endOffset: 25
+    message: "\"checkmark\": Unknown word."
+    severity: MINOR
