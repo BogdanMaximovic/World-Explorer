@@ -1,82 +1,40 @@
-const switchThemeBtn = document.getElementById("switch-theme");
-const searchCountryBtn = document.getElementById("search__btn");
-const searchCountryInput = document.getElementById("search__input");
-const regionSelect = document.getElementById("region");
-const sortBySelect = document.getElementById("sort");
-const filterInfoResult = document.getElementById("filter-info__result");
-const responseStatus = document.getElementById("filter-status");
-const searchResults = document.getElementById("search-results");
-const prevBtn = document.getElementById("prev-btn");
-const paginationInfo = document.getElementById("pagination-info");
-const nextBtn = document.getElementById("next-btn");
-const pageSizeSelect = document.getElementById("page-size");
-const firstPageBtn = document.getElementById("first-page-btn");
-const lastPageBtn = document.getElementById("last-page-btn");
-const notIndependentTab = document.getElementById("not-independent-btn");
-const independentTab = document.getElementById("independent-btn");
-const searchBySelect = document.getElementById("search-by");
-const main = document.querySelector("main");
-const filterSection = document.getElementById("filter");
-const collapseSlidePanel = document.getElementById("filter-collapse");
-const collapseBtn = document.getElementById("collapse-btn");
+import {
+  searchCountryBtn,
+  searchCountryInput,
+  regionSelect,
+  sortBySelect,
+  filterInfoResult,
+  responseStatus,
+  searchResults,
+  prevBtn,
+  paginationInfo,
+  nextBtn,
+  pageSizeSelect,
+  firstPageBtn,
+  lastPageBtn,
+  searchBySelect,
+  notIndependentTab,
+  independentTab,
+} from "./dom.js";
 
 const onloadAPI = "https://restcountries.com/v3.1/all?fields=name,population,independent,flags,currencies,languages,borders,continents,capital,coatOfArms";
 
-let countriesFromAPI = [];
+const countriesFromAPI = [];
 let notIndependentCountries = [];
 let countriesToSort = [];
 let pageSize = JSON.parse(localStorage.getItem("pageSize")) || 12;
 let pageCount = 1;
 const saveFilter = JSON.parse(localStorage.getItem("filters")) || [];
-let darkMode = JSON.parse(localStorage.getItem("darkMode"));
 let isIndependentActive = true;
 
-//////////////////////
-// FILTER COLLAPSE //
-////////////////////
-let isFilterSectionCollapsed = false;
-collapseBtn.onclick = () => {
-  isFilterSectionCollapsed = !isFilterSectionCollapsed;
+import { skeletonPlaceholder } from "./SkeletonPlaceholder.js";
+skeletonPlaceholder();
 
-  collapseBtn.classList.toggle("collapse__btn", !isFilterSectionCollapsed);
-  collapseBtn.classList.toggle("expand__btn", isFilterSectionCollapsed);
+import { makeEl, makeInfoCard, makeOptions } from "./makeElement.js";
+import openModal from "./modal.js";
+import { applyTheme } from "./theme.js";
 
-  if (isFilterSectionCollapsed) {
-    filterSection.remove();
-  } else {
-    main.prepend(filterSection);
-  }
-};
-
-window.addEventListener("scroll", () => {
-  window.scrollY >= 300 ? collapseSlidePanel.classList.add("filter__collapse-by") : collapseSlidePanel.classList.remove("filter__collapse-by");
-});
-
-//////////////////////
-// DARK/LIGHT MODE //
-////////////////////
 applyTheme();
-switchThemeBtn.onclick = switchTheme;
-function switchTheme() {
-  darkMode = !darkMode;
-  localStorage.setItem("darkMode", JSON.stringify(darkMode));
-  applyTheme();
-}
-function applyTheme() {
-  document.body.classList.toggle("dark-mode", darkMode);
-  switchThemeBtn.classList.toggle("light", darkMode);
-  switchThemeBtn.classList.toggle("dark", !darkMode);
-  searchCountryBtn.classList.toggle("light-search", darkMode);
-  searchCountryBtn.classList.toggle("dark-search", !darkMode);
-  prevBtn.classList.toggle("light-prev", darkMode);
-  prevBtn.classList.toggle("dark-prev", !darkMode);
-  nextBtn.classList.toggle("light-next", darkMode);
-  nextBtn.classList.toggle("dark-next", !darkMode);
-  firstPageBtn.classList.toggle("light-first-page", darkMode);
-  firstPageBtn.classList.toggle("dark-first-page", !darkMode);
-  lastPageBtn.classList.toggle("light-last-page", darkMode);
-  lastPageBtn.classList.toggle("dark-last-page", !darkMode);
-}
 
 ///////////////////
 // GET API DATA //
@@ -86,9 +44,9 @@ async function getAPIData() {
   try {
     const response = await fetch(onloadAPI);
     const data = await response.json();
-    countriesFromAPI = data.filter((country) => country.independent);
+    countriesFromAPI.push(...data.filter((country) => country.independent));
     countriesToSort = [...countriesFromAPI];
-    notIndependentCountries = [...data.filter((countries) => !countries.independent)];
+    notIndependentCountries = data.filter((countries) => !countries.independent);
 
     makeOptions(countriesFromAPI);
 
@@ -98,7 +56,7 @@ async function getAPIData() {
   } catch (err) {
     responseStatus.textContent = " Error";
     responseStatus.className = "status-error";
-    const toastMsg = makeEl("div", "toast-msg", `Unable to load countries. Please try again later.`);
+    const toastMsg = makeEl("div", "toast-msg", `Unable to load countries. Please try again later. ${err}`);
     setTimeout(() => {
       toastMsg.classList.add("toast-msg-active");
     }, 500);
@@ -106,94 +64,52 @@ async function getAPIData() {
       toastMsg.classList.remove("toast-msg-active");
     }, 5000);
     document.body.append(toastMsg);
+    console.log(err);
   }
-}
-
-/////////////////////////////////////
-// MAKE OPTIONS FOR SELECT REGION //
-///////////////////////////////////
-function makeOptions(data) {
-  const optionAll = makeEl("option", undefined, "All");
-  optionAll.value = "All";
-  optionAll.selected = true;
-  regionSelect.append(optionAll);
-
-  const continents = [];
-  data.forEach((country) => {
-    if (!continents.includes(country.continents[0])) {
-      continents.push(country.continents[0]);
-    }
-  });
-  continents.sort();
-  continents.forEach((continent) => {
-    const selectContinent = makeEl("option", undefined, continent);
-    selectContinent.value = continent;
-    selectContinent.selected = true;
-    regionSelect.append(selectContinent);
-  });
 }
 
 /////////////////////////
 // LOAD ALL COUNTRIES //
 ///////////////////////
-async function loadAllCountries() {
-  let independentCountries = await getAPIData();
-  const regionOptions = [...regionSelect.options];
+let independentCountries = await getAPIData();
+const regionOptions = [...regionSelect.options];
 
-  if (saveFilter.includes("All")) {
-    sortCountries();
-    // IF SOME WERE SELECTED
-  } else {
-    countriesToSort = independentCountries.filter((el) => saveFilter.includes(el.continents[0]));
-    regionOptions.forEach((el) => {
-      saveFilter.includes(el.value) ? (el.selected = true) : (el.selected = false);
-    });
-
-    sortCountries();
-    prevBtn.disabled = true;
-    firstPageBtn.disabled = true;
-    if (!saveFilter.length) {
-      const optionEurope = regionOptions.find((option) => option.value === "Europe");
-      optionEurope.selected = true;
-      localStorage.setItem("filters", JSON.stringify([optionEurope.value]));
-      countriesToSort = independentCountries.filter((el) => el.continents[0] === optionEurope.value);
-      sortCountries();
-    }
-  }
-  [...pageSizeSelect].forEach((el) => {
-    if (el.value == pageSize) {
-      el.selected = true;
-    }
+if (saveFilter.includes("All")) {
+  sortCountries();
+  // IF SOME WERE SELECTED
+} else {
+  countriesToSort = independentCountries.filter((el) => saveFilter.includes(el.continents[0]));
+  regionOptions.forEach((el) => {
+    el.selected = saveFilter.includes(el.value);
   });
-  independentTab.classList.add("active-tab");
-  filterInfoResult.textContent = countriesToSort.length;
-}
-loadAllCountries();
 
-///////////////////
-// MAKE ELEMENT //
-/////////////////
-function makeEl(elTag, elClass, elText, elId) {
-  const element = document.createElement(elTag);
-  if (elClass) element.className = elClass;
-  if (elText) element.textContent = elText;
-  if (elId) element.id = elId;
-  return element;
+  sortCountries();
+  prevBtn.disabled = true;
+  firstPageBtn.disabled = true;
+  if (!saveFilter.length) {
+    const optionEurope = regionOptions.find((option) => option.value === "Europe");
+    optionEurope.selected = true;
+    localStorage.setItem("filters", JSON.stringify([optionEurope.value]));
+    countriesToSort = independentCountries.filter((el) => el.continents[0] === optionEurope.value);
+    sortCountries();
+  }
 }
+[...pageSizeSelect].forEach((el) => {
+  if (el.value === pageSize) {
+    el.selected = true;
+  }
+});
 
-/////////////////////
-// MAKE CARD INFO //
-///////////////////
-function makeInfoCard(text) {
-  return makeEl("li", "card__info-data", text);
-}
+filterInfoResult.textContent = countriesToSort.length;
+independentTab.classList.add("active-tab");
+//////////////////////////////////////////////
 
 ////////////////////
 //  MAKE COUNTRY //
 //////////////////
 function makeCountry(data) {
   searchResults.textContent = "";
-  if (!countriesToSort.length) searchResults.textContent = "Please select region to se countries";
+  if (countriesToSort.length === 0) searchResults.textContent = "Please select region to se countries";
   data.forEach((country) => {
     const countryCard = makeEl("div", "search-results__card", undefined, "country-card");
     const countryFlag = makeEl("img", "card__flag");
@@ -260,19 +176,11 @@ function clickOptionAll() {
     localStorage.setItem("filters", JSON.stringify(optionsContinents));
     nextBtn.disabled = true;
     lastPageBtn.disabled = true;
-  } else if (optionAll.selected === false) {
-    if (!searchCountryInput.value.length) {
-      if (isIndependentActive) {
-        countriesToSort = [...countriesFromAPI];
-      } else {
-        countriesToSort = [...notIndependentCountries];
-      }
+  } else {
+    if (searchCountryInput.value.length === 0) {
+      countriesToSort = isIndependentActive ? [...countriesFromAPI] : [...notIndependentCountries];
     } else {
-      countriesFromAPI.forEach((el) => {
-        if (el.name.common.toLowerCase().includes(searchCountryInput.value.toLowerCase())) {
-          countriesToSort.push(el);
-        }
-      });
+      countriesToSort = countriesFromAPI.filter((country) => country.name.common.toLowerCase().includes(searchValue));
     }
     options.forEach((el) => {
       el.selected = true;
@@ -298,7 +206,7 @@ function filterByRegion() {
   // COUNTRY BY CONTINENT FILTER
   const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
 
-  if (!selected.length) {
+  if (selected.length === 0) {
     searchCountryInput.disabled = true;
   } else {
     searchCountryInput.disabled = false;
@@ -420,84 +328,6 @@ function setPageSize(e) {
   render();
 }
 
-////////////
-// MODAL //
-//////////
-function openModal(countryModalInfo) {
-  const modalOverlay = makeEl("div", "modal-overlay", undefined, "modal-overlay");
-  modalOverlay.onclick = () => modalOverlay.remove();
-  const countryModal = countryModalInfo.countryCard.cloneNode(true);
-  countryModal.onclick = (e) => {
-    e.stopPropagation();
-  };
-  const countryBody = makeEl("div", "country-modal-body");
-  const modalFlag = countryModal.querySelector("img.card__flag");
-  const cardInfoList = countryModal.querySelector("ul.card__info");
-  countryModal.className = "country-modal";
-  // MODAL HEAD
-  const modalHeader = makeEl("div", "close-modal");
-  const modalHeaderTitle = makeEl("h2", "modal-title", countryModalInfo.countryName.textContent);
-
-  const closeModalBtn = makeEl("button", "close-modal-btn");
-  closeModalBtn.classList.toggle("close-modal-btn-light", darkMode);
-  closeModalBtn.classList.toggle("lose-modal-btn-dark", !darkMode);
-  closeModalBtn.onclick = () => modalOverlay.remove();
-
-  modalHeader.append(modalHeaderTitle, closeModalBtn);
-  countryModal.insertBefore(modalHeader, countryModal.firstChild);
-  // END MODAL HEAD
-  cardInfoList.firstElementChild.remove();
-
-  const officialName = makeInfoCard(`Official name: ${countryModalInfo.officialName}`);
-  cardInfoList.prepend(officialName);
-
-  const countryModalLanguages = makeInfoCard(`Languages: ${Object.values(countryModalInfo.language).length ? Object.values(countryModalInfo.language).join(", ") : "None"}`);
-
-  const countryModalCurrency = makeInfoCard(
-    `Currency: ${Object.values(countryModalInfo.currency)
-      .map((c) => c.name)
-      .join(", ")}  (${Object.keys(countryModalInfo.currency).length ? Object.values(countryModalInfo.currency)[0].symbol : "None"})`,
-  );
-
-  const countryModalBorders = makeInfoCard(`Borders: ${countryModalInfo.borders.length ? countryModalInfo.borders.join(", ") : "None"}`);
-
-  const modalCoatOfArmsBtn = makeEl("button", "modal-coat-of-arms-btn", "Show Coat of Arms");
-  const cancelModalBtn = makeEl("button", "cancel-modal", "Close");
-  cancelModalBtn.onclick = () => modalOverlay.remove();
-
-  const modalFooter = makeEl("div", "modal-footer");
-
-  modalFooter.append(modalCoatOfArmsBtn, cancelModalBtn);
-
-  cardInfoList.append(countryModalLanguages, countryModalCurrency, countryModalBorders, modalFooter);
-
-  const modalCoatOfArms = makeEl("img", "modal-coat-of-arms");
-
-  modalCoatOfArms.src = countryModalInfo.coatOfArms.svg;
-  modalCoatOfArms.alt = `The coat of arms of ${countryModalInfo.commonName}`;
-  if (!countryModalInfo.coatOfArms.svg) modalCoatOfArmsBtn.disabled = true;
-
-  let isCoatOfArmsActive = false;
-  modalCoatOfArmsBtn.onclick = () => {
-    if (!isCoatOfArmsActive) {
-      modalCoatOfArmsBtn.textContent = "Hide Coat of Arms";
-      modalFooter.before(modalCoatOfArms);
-      isCoatOfArmsActive = true;
-    } else if (isCoatOfArmsActive) {
-      modalCoatOfArmsBtn.textContent = "Show Coat of Arms";
-      modalCoatOfArms.remove();
-      isCoatOfArmsActive = false;
-    }
-  };
-
-  document.body.classList.add("body-modal");
-
-  countryBody.append(modalFlag, cardInfoList);
-  countryModal.append(countryBody);
-  modalOverlay.append(countryModal);
-  document.body.append(modalOverlay);
-}
-
 /////////////////////
 // SEARCH COUNTRY //
 ///////////////////
@@ -513,19 +343,27 @@ async function searchCountry(e) {
     countriesToFilter = [...notIndependentCountries];
   }
 
-  const selectedContinents = [...regionSelect.selectedOptions].map((o) => o.value);
-  if (!selectedContinents.includes("All")) {
-    countriesToFilter = countriesToFilter.filter((c) => selectedContinents.includes(c.continents[0]));
+  const selectedContinents = new Set([...regionSelect.selectedOptions].map((o) => o.value));
+  if (!selectedContinents.has("All")) {
+    countriesToFilter = countriesToFilter.filter((c) => selectedContinents.has(c.continents[0]));
   }
 
-  if (searchBySelect.value === "contains") {
-    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().includes(searchCountryName));
-  } else if (searchBySelect.value === "starts-with") {
-    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().startsWith(searchCountryName));
-  } else if (searchBySelect.value === "ends-with") {
-    countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().endsWith(searchCountryName));
-  } else if (searchBySelect.value === "capital") {
-    countriesToSort = countriesToFilter.filter((country) => (country.capital[0] ? country.capital[0].toLowerCase().includes(searchCountryName) : ""));
+  switch (searchBySelect.value) {
+    case "contains":
+      countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().includes(searchCountryName));
+      break;
+    case "starts-with":
+      countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().startsWith(searchCountryName));
+      break;
+    case "ends-with":
+      countriesToSort = countriesToFilter.filter((country) => country.name.common.toLowerCase().endsWith(searchCountryName));
+      break;
+    case "capital":
+      countriesToSort = countriesToFilter.filter((country) => (country.capital[0] ? country.capital[0].toLowerCase().includes(searchCountryName) : ""));
+      break;
+
+    default:
+      countriesToSort = countriesToFilter;
   }
 
   if (!countriesToSort.length) searchResults.textContent = "";
@@ -543,40 +381,6 @@ searchBySelect.onchange = () => {
   filterByRegion();
 };
 
-///////////////////////////
-// SKELETON PLACEHOLDER //
-/////////////////////////
-function skeletonPlaceholder() {
-  for (let i = 1; i < pageSize; i++) {
-    const countryCard = makeEl("div", "search-results__card");
-    const countryFlag = makeEl("img", "card__flag");
-    countryFlag.classList.add("skeleton");
-    const cardInfo = makeEl("ul", "card__info");
-    const countryName = makeEl("li", "card__name");
-    const countryContinent = makeInfoCard();
-    const countryCapital = makeInfoCard();
-    const countryPopulation = makeInfoCard();
-    [countryContinent, countryCapital, countryPopulation].forEach((el) => el.classList.add("skeleton-text"));
-    countryName.classList.add("skeleton-heading");
-    cardInfo.append(countryName, countryContinent, countryCapital, countryPopulation);
-    countryCard.append(countryFlag, cardInfo);
-    searchResults.append(countryCard);
-  }
-}
-skeletonPlaceholder();
-
-////////////////////
-// SCROLL TO TOP //
-//////////////////
-const scrollToTopBTn = document.getElementById("scroll-to-top");
-scrollToTopBTn.onclick = scrollToTop;
-function scrollToTop() {
-  window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-}
-window.addEventListener("scroll", () => {
-  window.scrollY > window.innerHeight / 3 ? scrollToTopBTn.classList.add("show") : scrollToTopBTn.classList.remove("show");
-});
-
 ///////////////////////
 // RENDER COUNTRIES //
 /////////////////////
@@ -586,7 +390,7 @@ function render() {
   makeCountry(countriesToSort.slice(start, end));
 
   const selected = [...regionSelect.selectedOptions].map((opt) => opt.value);
-  if (!selected.length) {
+  if (selected.length === 0) {
     searchCountryInput.disabled = true;
     sortBySelect.disabled = true;
     nextBtn.disabled = true;
@@ -600,7 +404,9 @@ function render() {
   getPaginationInfo();
 }
 
+///////////////////
 // TABS SECTION //
+/////////////////
 notIndependentTab.onclick = () => showTabContent(false);
 independentTab.onclick = () => showTabContent(true);
 function showTabContent(independent) {

@@ -1,0 +1,16 @@
+export const searchCountryBtn = document.getElementById("search__btn");
+export const searchCountryInput = document.getElementById("search__input");
+export const regionSelect = document.getElementById("region");
+export const sortBySelect = document.getElementById("sort");
+export const filterInfoResult = document.getElementById("filter-info__result");
+export const responseStatus = document.getElementById("filter-status");
+export const searchResults = document.getElementById("search-results");
+export const prevBtn = document.getElementById("prev-btn");
+export const paginationInfo = document.getElementById("pagination-info");
+export const nextBtn = document.getElementById("next-btn");
+export const pageSizeSelect = document.getElementById("page-size");
+export const firstPageBtn = document.getElementById("first-page-btn");
+export const lastPageBtn = document.getElementById("last-page-btn");
+export const notIndependentTab = document.getElementById("not-independent-btn");
+export const independentTab = document.getElementById("independent-btn");
+export const searchBySelect = document.getElementById("search-by");

@@ -1,0 +1,18 @@
+generatedAt: "2026-02-20T13:40:07.432Z"
+rule: S7785
+count: 1
+details:
+  code: "javascript:S7785"
+  source: SonarLintScanner
+  path: "c:\\Users\\lazar.milovanovic\\OneDrive - Soprex\\Desktop\\World-Explorer"
+occurrences[1]:
+  - key: "script/script.js:171:0:2"
+    file: script/script.js
+    line: 172
+    textRange:
+      startLine: 172
+      endLine: 172
+      startOffset: 0
+      endOffset: 18
+    message: Prefer top-level await over an async function `loadAllCountries` call.
+    severity: MAJOR
